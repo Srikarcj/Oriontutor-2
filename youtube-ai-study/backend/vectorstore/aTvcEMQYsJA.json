@@ -1,0 +1,40 @@
+{
+  "video_id": "aTvcEMQYsJA",
+  "chunks": [
+    {
+      "id": 0,
+      "video_id": "aTvcEMQYsJA",
+      "text": "Hello everyone, my name is Arohi and welcome back to my channel. So guys, today we are going to talk about a very interesting research paper which was released by Meta and which was co-authored by Yan Leon. So this paper leads to an interesting question that is this the end of large language models or do large language models still represent the future of AI? So today we are going to explore this question and the paper is called VL Japa which stands for vision language joint embedding predictive architecture and it was released on December 11, 2025. But guys before we understand what VLJA is, first let's look how the AI systems which we use today actually work. So the large language models GPT, Llama or Gemini, they generate text, right? They generate one token at a time from left to right and each time when model predict the next word all the previously generated words become its input and that is why these models are called auto reggressive model. So for example if you want to generate a sentence my name is Arohi then the model first predict my then it will use it to predict name then is and finally Arohi. This approach works well but it has a major limitation",
+      "start": 0.08,
+      "end": 79.04
+    },
+    {
+      "id": 1,
+      "video_id": "aTvcEMQYsJA",
+      "text": "and the limitation is that the model cannot know the final answer up front. It generate one word at a time and it relies entirely on previously generated tokens to decide the next one. So this makes the process slow, computationally expensive and heavily dependent on language structure rather than the true understanding. And this is something which Yan Liken has been criticizing for years. In many talks and interviews, he clearly said that scaling LLM is not same as intelligence. Bigger data sets, larger models or longer context windows are not enough to produce human level intelligence. Because intelligence is not about predicting the next word. It is about understanding the world around you. Language is just a way to express the thought. But thinking itself happen through concepts, not tokens. And this is exactly where V Japa takes a completely different approach. VJ Japa is a visual language model which means it can understand images, videos and text together. But unlike traditional models, it does not generate text word by word. Instead, VJA predicts semantic embedding. Means instead of predicting text token by token, VJA builds an internal semantic understanding of what",
+      "start": 76.56,
+      "end": 157.2
+    },
+    {
+      "id": 2,
+      "video_id": "aTvcEMQYsJA",
+      "text": "it sees. And because of this VLJ operates as non-generative model because it learns what something means not how to describe it word by word. It performs reasoning in a latent semantic space rather than a token space. Now what is the meaning of semantic space and token space? Let's understand that. So in AI space simply means a way to organize information using numbers. So suppose you have a sentence or a image or video or any form of data. we convert it into vector. Vector, what is vector? Vector is a list of numbers and when AI models start working, it place the similar meanings close to each other. So for example, words love and will be placed together and the different meaning words cat and car will be far apart. So space is basically a mapping of meanings. Now let's understand the meaning of semantic space. Semantic space simply means the things which are same or similar are close. For example, dog is running and puppy is playing. So these two sentences are using different words but their meaning is similar. In semantic space their embeddings will be closed together. But suppose we have one sentence dog is running and another sentences a car is parked. So here these",
+      "start": 154.08,
+      "end": 237.35999999999999
+    },
+    {
+      "id": 3,
+      "video_id": "aTvcEMQYsJA",
+      "text": "two sentence have different meanings. So in semantic space they will be their embeddings will be far apart. So this is what semantic space is. Now let's compare the semantic space with token space which is what LLM use right. So token space means where we work with words and subver words. We care about grammar, punctuation and word order and it is focused on predicting the next token. So for example in the sentence my name is Arohi and I love coding the model treat each word separate tokens and predict them one by one and in semantic space which we jpai use it works with concepts and meanings. It ignore the exact wording and it represents the entire idea at once. So the same sentence can become something a person named Arohi likes to code and then this meaning is stored as one abstract vector. So how VJ japa is different from LLMs? LLMs think by predicting the next word and VJA thinks by predicting the meaning. And guys this approach is very powerful. Why? Because the model is learning in a semantic space instead of token space. model is focusing on what something means not how it is written and because of that it makes the reasoning faster and easier",
+      "start": 235.04,
+      "end": 322.23999999999995
+    },
+    {
+      "id": 4,
+      "video_id": "aTvcEMQYsJA",
+      "text": "and also it require less parameters as compared to the other models and it is closer to how humans think. Now a very important clarification VL Japa is not the end of LLM instead it is the beginning of new direction and Yan Leakin call this idea a world model a world model doesn't just talk it understand how worlds work over time and in the future LLMs won't disappear but they will stop being at the center they will become the language layer the part that communicates with human so that's all for today let me know in the comments if you want an in-depth paper discussion. And guys, if you enjoyed the video, then and share. And if you are new here, please make sure to subscribe. Thank you for watching. See you in the next one.",
+      "start": 318.479,
+      "end": 369.84
+    }
+  ]
+}

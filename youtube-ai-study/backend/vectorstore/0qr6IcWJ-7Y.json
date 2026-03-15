@@ -1,0 +1,82 @@
+{
+  "video_id": "0qr6IcWJ-7Y",
+  "chunks": [
+    {
+      "id": 0,
+      "video_id": "0qr6IcWJ-7Y",
+      "text": "Hello everyone, my name is A Rohi and welcome to my channel. So guys, today we are starting with a new playlist on large language models and in this playlist we will cover everything about LLMs how they work, how they understand and generate text and how to build our own GPD model from scratch. So by the end of this playlist you will have a complete understanding of what LLMs are and how they process language and then how tokenization embeddings or attentions and transformer work and then how to build our own LLM from scratch using Python and PyTorch. So we will start with the absolute basics and then we will move step by step. So follow this entire playlist because each lecture is built upon the previous one. So let's start with our very first lecture. Now before we move on to the big models transformers or GPTs, let's start with a very basic question. How does computer understand language? Now when we read or write, we naturally understand that some word sequences sound right. the tea is very hot, this sounds right. Right? And some sequences very hot is the tea. Right? So this sequence feels unnatural or wrong. So how can computer learn this",
+      "start": 0.24,
+      "end": 78.159
+    },
+    {
+      "id": 1,
+      "video_id": "0qr6IcWJ-7Y",
+      "text": "sense of which words belong together or which sequence of words are correct and which sequences doesn't make sense. So how does computer learn this thing? So that's where language model comes in. So with the help of language models we can teach computers to understand the sequence of words or sentences the way human do. Now the job of language model is simple. It looks at the words that came before and tries to predict the next word, the most likely next word to come. And this one simple idea which is predicting the next word is the foundation of all model large language models GPT. Now in today's lecture we will understand this process conceptually and mathematically. So let's start with the very basic question. What exactly is the language model? So a language model is a function that assigns probability to sequence of words or tokens. Just see here. So see mathematically we can write it this. P is probability, W1 is word one, word 2, W2 is word two and then we have various words word 3, 4, 5 up to word N, right? Up to the last word. So what it means is it simply means that the probability that these words occur in appear in this sequence in natural",
+      "start": 74.96,
+      "end": 164.56
+    },
+    {
+      "id": 2,
+      "video_id": "0qr6IcWJ-7Y",
+      "text": "language processing. So let's take a simple example. So let's say the T is very hot. T is very hot. Now the is W1, P is W2, is is W3 and very is W4 and this hot is W5 and if there is a full stop after it then this will be W6. Now W1, W2 and up to this W 6 what are they? These are tokens. These are words. Words are tokens only. And the probability is that these words appear in this sequence in natural language means when we speak. So this is the more natural sentence. And let's say there is one more sentence. Now let's write one more sentence. Very the hot tea is. So which sentence is more natural this one or this one? So this sentence is more natural. The sequence of a words appear in this sequence in natural language and this sequence sounds unnatural. So this is what language model try to learn. They try to learn that what is the correct sequence of the words in a sentence. They try to learn this and they try to learn this with the help of probability. Now we know that this is the correct sentence and this is not the correct sentence. So let's say 0.9% probability model gets for this and 0.1 probability it gets for it. Now the the sequence which will have a high",
+      "start": 162.4,
+      "end": 270.56
+    },
+    {
+      "id": 3,
+      "video_id": "0qr6IcWJ-7Y",
+      "text": "probability model will pick that sequence. But in language models we don't teach language models to you know predict the entire sentence. What we teach? We teach language models to just predict the next possible word on the basis of the previous words which it predicted earlier. So if let's say language model predicted the then language model will only try to predict the next word which is t. And now on the basis of the and t model will only try to predict the next word which is is. Now after that on the basis of the t is model will try to only predict the next word which is very and for this model use probabilities. So for example model predicted the word as the first word of sentence. This is the first word of the sentence. Now on the basis of the which is w1 the token over here is the w1. on the basis of the model will predict the next word which is W2 and for W2 model will have a probability for different vocabulary. So every model have a vocabulary. Vocabulary means how many unique words that model can predict. . And so let's say model predicted t and for t it predicted 0.8% 8% probability and for car it predicted 0.1% probability and for let's say",
+      "start": 268.56,
+      "end": 372.08
+    },
+    {
+      "id": 4,
+      "video_id": "0qr6IcWJ-7Y",
+      "text": "some other word dog it predicted 0.1% probability. Now which word has the high probability 0.8 this is the highest probability of the t word. So model will pick the t word and next word will be t. Now model know the first word is this and the second word is t. Now on the basis of these two words the t. On the basis of these two word this is w1 and this is w2 model will predict the third word. Now for the third word model will again provide a probability distribution for the vocabulary of the model. vocabulary of the model means what all those different unique words which model has model know about it. So it will provide the probability values to all those words and then it will pick that token that word which will have the highest probability. So let's say is word is word for that these kind of words are there. So is word have 0.9% probability and this have 0.05 05% probability and this again have 0.0.5% of probability. So is is the higher probability. So it will pick the is as the next word. So this is how language model words. They don't predict they don't try to learn about the entire sentence at once. They just try to predict the next word on the basis of",
+      "start": 368.24,
+      "end": 468.56
+    },
+    {
+      "id": 5,
+      "video_id": "0qr6IcWJ-7Y",
+      "text": "the previous tokens. So the T is the previous token. on the basis of these two tokens this will become the input to the model and then it will predict the next word which is is so this is what model does now let's understand how it work mathematically how model achieve the result which I'm which we are talking about that model will predict the next word on the basis of all the previous words or tokens it predicted earlier so let's try to understand that so to get the probability Ability of entire sequence of words means to get the entire sequence of words in a correct order. if we have W1, W2 up to W N. To teach your model how to predict the entire sequence of words, we will use the chain rule of probability. Chain rule of probability. Why we are using it? because we don't want to predict the entire sentence at once. We want to teach the language model just to predict the next word based on the previous words it predicted. So that we can achieve with the help of chain rule of probability. Now let me show you how this chain rule of probability will work here. So model will first predict the the word let's say because this is the most common token or word when we",
+      "start": 464.479,
+      "end": 562.8800000000001
+    },
+    {
+      "id": 6,
+      "video_id": "0qr6IcWJ-7Y",
+      "text": "start a new sentence right. So let's say this is the first word. This is the probability of word one. So we got the word first word which is the. Now we will multiply the probability of this word with the probability of word two given word one means word one which is the will be the input to the model. Now on the basis of this word given w1 model will predict the next word which is w2. Now we will multiply the probability of this with now we know the first word is the let's say the word second word model predicted on the basis of though is t and how it got this word t on the basis of the probability for the model will have a probability distribution for the entire vocabulary and from that entire vocabulary the word or token which will have the highest probability will become the second word and now let's suppose T word or T token got the higher probability so second word is T now our model know about W1 and W2 now if W1 and W2 is given model will predict W3 and we will multiply the probability of that with the next words see what is happening over here I have told you that What we will use? We will use the chain rule of probability. So this is the",
+      "start": 560.08,
+      "end": 668.0
+    },
+    {
+      "id": 7,
+      "video_id": "0qr6IcWJ-7Y",
+      "text": "chain rule of probability. This is the W1. Then we got this W2 on the basis of W1. Then we got W3 on the basis of W1 and W2. this we will do for all the words. See now we can write this formula this also. So what is this? We are trying to predict the entire sequence but predicting the entire sequence at once is a difficult task. So we will use the chain rule of probability and the chain rule of probability which I've shown you that this one the probability of W1 we will multiply with probability of W2 given W1 then the probability of W3 given W1 comma W2 and this up to the last word so this part we can write this also See we are predicting the last word given all the words right? So t1 to tn means from first to the last word and to predict the entire sentence we can use this. So the probability of sentence simply means the product of probability of each word given all the words that came before it. That's why we say that LLMs are auto reggressive models. What is auto reggressive? Auto reggressive simply means let me write over here first. Auto regressive. See LLMs are auto reggressive. What this auto reggressive means? Auto reggressive simply means that they generate the next",
+      "start": 665.6,
+      "end": 780.079
+    },
+    {
+      "id": 8,
+      "video_id": "0qr6IcWJ-7Y",
+      "text": "token one token at a time depending upon the previous tokens which it has generated earlier. So when model use its own output as input to predict the next output this this concept is called auto reggressive and LLMs are auto reggressive because they are predicting the next word based on the previous tokens which it has generated earlier at the previous time steps. So over here see W1 was generated earlier. Then on the basis of W1 it generated W2 then on the basis of W1 and W2 it generated W3. So on the basis of previous tokens it generated the new token. So that's why LLMs are auto reggressive. So this is the chain rule of probability. So using this chain rule of probability we can know the probability of the entire sentence. So now you understood the chain rule of probability. It simply means first we predict the W1 right the first word then we predict the W2 given W1 then we predict W3 given W1 and W2 and so on. And we will keep on doing that until the sentence is completed and each prediction depends upon the previous one. So this is the most fundamental equation behind all the large language models including a GP model. So when we train a model, it",
+      "start": 776.16,
+      "end": 870.959
+    },
+    {
+      "id": 9,
+      "video_id": "0qr6IcWJ-7Y",
+      "text": "learns to estimate these probabilities. , all these probabilities and each prediction gives us a probability distribution over the vocabulary. vocabulary simply means it will give you the probability distribution over all the possible next words. So for example, it can say that the probability of hot given the tea is very is 0.85 85 and the probability of cat given the tea is very hot is 0.1 and the probability of car is 0.5 given the tea is very so and the word which has the highest probability which is hot in this case is selected as the next token. So during training we show the model billions of sentences this, billions of examples this and each time model will predict the next word then it will compare the prediction which model predicted with the actual word right. So this is how models work right. We model predicts some output and then we compare that output with the output which the actual output right. So this is how model learn the process. The process repeated again and again and after after training for so many epochs model become very good at language and over time model will learn about grammar, syntax, context everything model will",
+      "start": 867.839,
+      "end": 959.8389999999999
+    },
+    {
+      "id": 10,
+      "video_id": "0qr6IcWJ-7Y",
+      "text": "learn. It will even learn about semantic relationships tea and hot is related, India and Delhi is related these things. So these models are called auto reggressive. Why? Because auto simply means self and regressive simply means depending upon previous and regressive simply means depending upon previous steps. So the model depends on the previous tokens depends upon the tokens it has already generated and it it never look ahead. It always moves one token at a time left to right. So this is how exactly GPT and almost all modern text generation LLMs work. So that's it for today's guys and in my next video we will move on to the next topic and I hope this video is helpful and guys if you my content please , share and subscribe my channel. Thank you for watching.",
+      "start": 957.519,
+      "end": 1013.92
+    }
+  ]
+}

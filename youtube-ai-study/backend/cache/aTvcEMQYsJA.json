@@ -1,0 +1,187 @@
+{
+  "video_id": "aTvcEMQYsJA",
+  "notes": {
+    "title": "VL Japa: A New Direction in AI Research",
+    "overview": "VL Japa, a visual language model, challenges the traditional approach of large language models (LLMs) by predicting semantic embeddings rather than text tokens. This approach enables faster and easier reasoning, requiring fewer parameters.",
+    "main_concepts": [
+      "VL Japa",
+      "Visual Language Model",
+      "Semantic Embeddings",
+      "Token Space",
+      "Semantic Space",
+      "World Model"
+    ],
+    "detailed_explanation": "{\n  \"VL Japa\": {\n    \"description\": \"VL Japa is a visual language model that can understand images, videos, and text together. It predicts semantic embeddings, building an internal semantic understanding of what it sees.\",\n    \"resources\": []\n  },\n  \"Semantic Embeddings\": {\n    \"description\": \"Semantic embeddings are a way to organize information using numbers, mapping similar meanings close to each other.\",\n    \"resources\": []\n  },\n  \"Token Space\": {\n    \"description\": \"Token space is a way of working with words and subwords, focusing on grammar, punctuation, and word order.\",\n    \"resources\": []\n  },\n  \"Semantic Space\": {\n    \"description\": \"Semantic space is a mapping of meanings, where similar meanings are close together.\",\n    \"resources\": []\n  },\n  \"World Model\": {\n    \"description\": \"A world model is an idea proposed by Yan Leakin, where a model understands how worlds work over time.\",\n    \"resources\": []\n  }\n}",
+    "examples": [
+      "VL Japa predicts semantic embeddings rather than text tokens.",
+      "VL Japa operates in a semantic space, ignoring exact wording and representing entire ideas at once."
+    ],
+    "key_takeaways": [
+      "VL Japa is a new direction in AI research, challenging traditional LLMs.",
+      "VL Japa predicts semantic embeddings, enabling faster and easier reasoning.",
+      "VL Japa requires fewer parameters compared to traditional LLMs."
+    ]
+  },
+  "transcript": "00:00 Hello everyone, my name is Arohi and\n00:01 welcome back to my channel. So guys,\n00:03 today we are going to talk about a very\n00:05 interesting research paper which was\n00:07 released by Meta and which was\n00:09 co-authored by Yan Leon. So this paper\n00:12 leads to an interesting question that is\n00:14 this the end of large language models or\n00:17 do large language models still represent\n00:19 the future of AI? So today we are going\n00:22 to explore this question and the paper\n00:24 is called VL Japa which stands for\n00:27 vision language joint embedding\n00:29 predictive architecture and it was\n00:31 released on December 11, 2025. But guys\n00:34 before we understand what VLJA is, first\n00:38 let's look how the AI systems which we\n00:40 use today actually work. So the large\n00:42 language models like GPT, Llama or\n00:45 Gemini, they generate text, right? They\n00:48 generate one token at a time from left\n00:50 to right and each time when model\n00:52 predict the next word all the previously\n00:55 generated words become its input and\n00:58 that is why these models are called auto\n01:00 reggressive model. So for example if you\n01:02 want to generate a sentence like my name\n01:04 is Arohi then the model first predict my\n01:08 then it will use it to predict name then\n01:11 is and finally Arohi. This approach\n01:13 works well but it has a major limitation\n01:16 and the limitation is that the model\n01:19 cannot know the final answer up front.\n01:21 It generate one word at a time and it\n01:24 relies entirely on previously generated\n01:26 tokens to decide the next one. So this\n01:29 makes the process slow, computationally\n01:31 expensive and heavily dependent on\n01:34 language structure rather than the true\n01:36 understanding. And this is something\n01:38 which Yan Liken has been criticizing for\n01:40 years. In many talks and interviews, he\n01:43 clearly said that scaling LLM is not\n01:46 same as intelligence. Bigger data sets,\n01:48 larger models or longer context windows\n01:51 are not enough to produce human level\n01:53 intelligence. Because intelligence is\n01:55 not about predicting the next word. It\n01:57 is about understanding the world around\n01:59 you. Language is just a way to express\n02:01 the thought. But thinking itself happen\n02:03 through concepts, not tokens. And this\n02:06 is exactly where V Japa takes a\n02:08 completely different approach. VJ Japa\n02:10 is a visual language model which means\n02:13 it can understand images, videos and\n02:16 text together. But unlike traditional\n02:19 models, it does not generate text word\n02:21 by word. Instead, VJA predicts semantic\n02:25 embedding. Means instead of predicting\n02:28 text token by token, VJA builds an\n02:31 internal semantic understanding of what\n02:34 it sees. And because of this VLJ\n02:37 operates as non-generative model because\n02:40 it learns what something means not how\n02:42 to describe it word by word. It performs\n02:45 reasoning in a latent semantic space\n02:47 rather than a token space. Now what is\n02:49 the meaning of semantic space and token\n02:51 space? Let's understand that. So in AI\n02:54 space simply means a way to organize\n02:57 information using numbers. So suppose\n02:59 you have a sentence or a image or video\n03:02 or any form of data. we convert it into\n03:05 vector. Vector, what is vector? Vector\n03:07 is a list of numbers and when AI models\n03:11 start working, it place the similar\n03:13 meanings close to each other. So for\n03:15 example, words like uh love and like\n03:19 will be placed together and the\n03:20 different meaning words like cat and car\n03:24 will be far apart. So space is basically\n03:27 a mapping of meanings. Now let's\n03:29 understand the meaning of semantic\n03:30 space. Semantic space simply means the\n03:33 things which are same or similar are\n03:35 close. For example, uh dog is running\n03:38 and puppy is playing. So these two\n03:41 sentences are using different words but\n03:43 their meaning is similar. In semantic\n03:45 space their embeddings will be closed\n03:46 together. But suppose we have one\n03:48 sentence dog is running and another\n03:51 sentences a car is parked. So here these\n03:55 two sentence have different meanings. So\n03:57 in semantic space they will be their\n03:59 embeddings will be far apart. So this is\n04:01 what semantic space is. Now let's\n04:03 compare the semantic space with token\n04:06 space which is what LLM use right. So\n04:08 token space means where we work with\n04:11 words and subver words. We care about\n04:13 grammar, punctuation and word order and\n04:17 uh it is focused on predicting the next\n04:20 token. So for example in the sentence my\n04:22 name is Arohi and I love coding the\n04:24 model treat each word like uh separate\n04:27 tokens and predict them one by one and\n04:30 in semantic space which we jpai use it\n04:33 works with concepts and meanings. It\n04:36 ignore uh the exact wording and it\n04:39 represents the entire idea at once. So\n04:42 the same sentence can become something\n04:44 like uh a person named Arohi likes to\n04:47 code and then this meaning is stored as\n04:50 one abstract vector. So how VJ japa is\n04:53 different from LLMs? LLMs think by\n04:55 predicting the next word and VJA thinks\n04:59 by predicting the meaning. And guys this\n05:01 approach is very powerful. Why? Because\n05:04 uh the model is learning in a semantic\n05:06 space instead of token space. model is\n05:09 focusing on what something means not how\n05:12 it is written and because of that it\n05:15 makes the reasoning faster and easier\n05:18 and also it require less parameters as\n05:22 compared to the other models and it is\n05:24 closer to how humans think. Now a very\n05:27 important clarification VL Japa is not\n05:30 the end of LLM instead it is the\n05:33 beginning of new direction and Yan\n05:36 Leakin call this idea a world model a\n05:39 world model doesn't just talk it\n05:42 understand how worlds work over time and\n05:44 in the future LLMs won't disappear but\n05:47 they will stop being at the center they\n05:49 will become the language layer the part\n05:51 that communicates with human so that's\n05:54 all for today let me know in the\n05:56 comments if you want an in-depth paper\n05:59 discussion. And guys, if you enjoyed the\n06:01 video, then like and share. And if you\n06:03 are new here, please make sure to\n06:05 subscribe. Thank you for watching. See\n06:06 you in the next one.",
+  "summary": "Here are 10 concise bullet points summarizing the key concepts and definitions:\n\n* **VL Japa**: A research paper released by Meta, co-authored by Yan LeCun, which proposes a new approach to AI models, called Vision Language Joint Embedding Predictive Architecture (VL Japa).\n* **Large Language Models (LLMs)**: Current AI models like GPT, Llama, or Gemini generate text one token at a time, relying on previously generated tokens to decide the next one, which is computationally expensive and heavily dependent on language structure.\n* **Auto-regressive models**: LLMs generate text by predicting the next word, but this approach has limitations, such as slow processing and dependence on language structure rather than true understanding.\n* **Semantic space**: A way to organize information using numbers, where similar meanings are placed close together, and different meanings are far apart.\n* **Token space**: A way to organize information using words and subwords, focused on predicting the next token, used by LLMs.\n* **VL Japa's approach**: Predicts semantic embeddings, building an internal semantic understanding of what it sees, rather than generating text word by word.\n* **Non-generative model**: VL Japa learns what something means, rather than how to describe it word by word, operating in a latent semantic space.\n* **Semantic space vs. token space**: VL Japa works with concepts and meanings, ignoring exact wording and representing the entire idea at once, whereas LLMs focus on predicting the next word.\n* **VL Japa's advantages**: Faster and easier reasoning, requiring fewer parameters, and closer to human thinking.\n* **VL Japa's direction**: Not the end of LLMs, but a new direction, with LLMs becoming the language layer, communicating with humans, and a \"world model\" that understands how worlds work over time.",
+  "mindmap": {
+    "main_topic": "VL Japa: A New Direction in AI Research",
+    "concepts": []
+  },
+  "flashcards": [],
+  "visual_insights": [
+    {
+      "timestamp": "00:03",
+      "seconds": 3,
+      "visual_type": "Key Moment",
+      "title": "today we are going to talk",
+      "ai_explanation": "today we are going to talk about a very",
+      "bullets": [
+        "today we are going to talk about a very"
+      ],
+      "image_url": "https://img.youtube.com/vi/aTvcEMQYsJA/mqdefault.jpg",
+      "tags": [
+        "Key Moment"
+      ],
+      "key_moment": true
+    },
+    {
+      "timestamp": "00:14",
+      "seconds": 14,
+      "visual_type": "Key Moment",
+      "title": "this the end of large language",
+      "ai_explanation": "this the end of large language models or",
+      "bullets": [
+        "this the end of large language models or"
+      ],
+      "image_url": "https://img.youtube.com/vi/aTvcEMQYsJA/mqdefault.jpg",
+      "tags": [
+        "Key Moment"
+      ],
+      "key_moment": true
+    },
+    {
+      "timestamp": "00:19",
+      "seconds": 19,
+      "visual_type": "Key Moment",
+      "title": "the future of AI? So today",
+      "ai_explanation": "the future of AI? So today we are going",
+      "bullets": [
+        "the future of AI?",
+        "So today we are going"
+      ],
+      "image_url": "https://img.youtube.com/vi/aTvcEMQYsJA/mqdefault.jpg",
+      "tags": [
+        "Key Moment"
+      ],
+      "key_moment": true
+    },
+    {
+      "timestamp": "00:29",
+      "seconds": 29,
+      "visual_type": "Diagram",
+      "title": "predictive architecture and it was",
+      "ai_explanation": "predictive architecture and it was",
+      "bullets": [
+        "predictive architecture and it was"
+      ],
+      "image_url": "https://img.youtube.com/vi/aTvcEMQYsJA/mqdefault.jpg",
+      "tags": [
+        "Diagram"
+      ],
+      "key_moment": false
+    },
+    {
+      "timestamp": "00:38",
+      "seconds": 38,
+      "visual_type": "Key Moment",
+      "title": "let's look how the AI systems",
+      "ai_explanation": "let's look how the AI systems which we",
+      "bullets": [
+        "let's look how the AI systems which we"
+      ],
+      "image_url": "https://img.youtube.com/vi/aTvcEMQYsJA/mqdefault.jpg",
+      "tags": [
+        "Key Moment"
+      ],
+      "key_moment": false
+    },
+    {
+      "timestamp": "00:48",
+      "seconds": 48,
+      "visual_type": "Key Moment",
+      "title": "generate one token at a time",
+      "ai_explanation": "generate one token at a time from left",
+      "bullets": [
+        "generate one token at a time from left"
+      ],
+      "image_url": "https://img.youtube.com/vi/aTvcEMQYsJA/mqdefault.jpg",
+      "tags": [
+        "Key Moment"
+      ],
+      "key_moment": false
+    },
+    {
+      "timestamp": "00:58",
+      "seconds": 58,
+      "visual_type": "Key Moment",
+      "title": "that is why these models are",
+      "ai_explanation": "that is why these models are called auto",
+      "bullets": [
+        "that is why these models are called auto"
+      ],
+      "image_url": "https://img.youtube.com/vi/aTvcEMQYsJA/mqdefault.jpg",
+      "tags": [
+        "Key Moment"
+      ],
+      "key_moment": false
+    },
+    {
+      "timestamp": "01:00",
+      "seconds": 60,
+      "visual_type": "Demo",
+      "title": "reggressive model. So for example if",
+      "ai_explanation": "reggressive model. So for example if you",
+      "bullets": [
+        "reggressive model.",
+        "So for example if you"
+      ],
+      "image_url": "https://img.youtube.com/vi/aTvcEMQYsJA/mqdefault.jpg",
+      "tags": [
+        "Demo"
+      ],
+      "key_moment": false
+    },
+    {
+      "timestamp": "01:02",
+      "seconds": 62,
+      "visual_type": "Key Moment",
+      "title": "want to generate a sentence like",
+      "ai_explanation": "want to generate a sentence like my name",
+      "bullets": [
+        "want to generate a sentence like my name"
+      ],
+      "image_url": "https://img.youtube.com/vi/aTvcEMQYsJA/mqdefault.jpg",
+      "tags": [
+        "Key Moment"
+      ],
+      "key_moment": false
+    },
+    {
+      "timestamp": "01:04",
+      "seconds": 64,
+      "visual_type": "Key Moment",
+      "title": "is Arohi then the model first",
+      "ai_explanation": "is Arohi then the model first predict my",
+      "bullets": [
+        "is Arohi then the model first predict my"
+      ],
+      "image_url": "https://img.youtube.com/vi/aTvcEMQYsJA/mqdefault.jpg",
+      "tags": [
+        "Key Moment"
+      ],
+      "key_moment": false
+    }
+  ],
+  "pdf_url": "/static/aTvcEMQYsJA_notes.pdf"
+}

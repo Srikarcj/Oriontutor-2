@@ -1,0 +1,61 @@
+{
+  "video_id": "O2gerCxEXvc",
+  "chunks": [
+    {
+      "id": 0,
+      "video_id": "O2gerCxEXvc",
+      "text": "My goal today is to explain the difference between these three terms in a most simple language. When you ask a question to chat GPD as a result, it will generate new text. It can also generate images, videos and so on. So generative AI is nothing but an AI that can create new content either text, image or video based on patterns learned from existing data. At the heart of it there is large language model and this model can be your GPT4 claude model Gina etc. It is trained on a huge volume of internet data it can be Wikipedia text Google books and so on and based on that it will be generating the answers. Now if you ask this question, what is the price of a flight ticket tomorrow? It won't be able to answer because it has a knowledge cutff date and this is a generative AI with only LLM. But you might have noticed if you ask some questions to chat GPT you will see this searching the web text and it will do the web search and it will return you the latest information from internet. So in this LLM if you give an access to Xedia API or let's say make my trip or any other travel API then LLM is smart enough to call this API and fetch the latest price of a flight. . So this",
+      "start": 0.16,
+      "end": 93.28
+    },
+    {
+      "id": 1,
+      "video_id": "O2gerCxEXvc",
+      "text": "is getting little more intelligent than just simple LLM which is trained on some knowledge cutoff. Right. So LLM is a brain and to that brain you are giving this access of a tool. Right? Let's say you are a human you have a brain but I give you a hammer and a screwdriver you will be able to do even more. So similarly for LLM these tools then there is another thing called knowledge. These are its hammers and screwdriver which will help it do even more. You can also ask book me a cheapest flight tomorrow from place A to B and using Xedia API it will first search different flights then it will decide the cheapest one and then it will book that flight. So here you are now performing actions. Previously you are asking questions simple Q&A but now it is actually taking action for you. This is an AI agent. It is a program that takes input. It will think and it will act to complete a task. . Agent will complete task. It's not just simple Q&A chatboard. It will complete a task using tools, memory and knowledge. And there is some autonomy or independent decision making. So when we looked at previously see it decided which is the cheapest flight. So maybe it found let's",
+      "start": 90.96,
+      "end": 177.76
+    },
+    {
+      "id": 2,
+      "video_id": "O2gerCxEXvc",
+      "text": "say five flights and it figured out this is the cheapest flight and then it booked it. So it is taking independent decision. . So it is autonomous but at the same time the example that we looked at is very narrow and specific. . I'm asking from place A to B book a flight tomorrow cheapest flight. So it's a simple task. It's not that complex. It doesn't involve u multiple step reasoning multi-step planning and so on. But now let's say you ask even a more complex question such as I want to travel to New Delhi in May. It is 7-day trip. Weather should be sunny on all the days. Flight budget is less than $1,600. No layover. Now this is the question you will ask your travel agent right when you call it. , these are my five criterias. Give me the best flight. Well, apparently AI agents can do this. So it has access to Xedia for your travel needs. Now it needs to check weather also because you sunny weather. So what you can do is provide an access to some weather API acue weather API whatever API and then it will first check the weather. . So it will look at the month of May and find seven consecutive days where the weather is sunny. For those days it will do a",
+      "start": 175.599,
+      "end": 259.359
+    },
+    {
+      "id": 3,
+      "video_id": "O2gerCxEXvc",
+      "text": "flight search, compare airlines, find the flight with a budget less than 1600. . Not only that, it might go one step further and give you suggestions for hotel and airport taxi. . So see I booked a flight and I also found you few good suggestions. So this is a flight booking AI agent. You see here it's a flight booking AI agent which is doing a complex task than the simple AI agent. You can expand it further because when you travel across countries you might need visa. So maybe it can do even more complex things such as it can call another AI agent which is immigration AI agent and this agent is also powered by LLM obviously but it has access to let's say some immigration APIs it has access to your one drive where you have kept your passport and your immigration records and now this immigration a agent right this green box will check your visa eligibility and and it will say hey what your visa has expired so even before you book a ticket you need to apply for a visa so this is even a complex system where there is not just one agent there are two agents right the first agent is flight booking second one is immigration AI agent so the system as a whole if you think about the entire",
+      "start": 257.04,
+      "end": 348.72
+    },
+    {
+      "id": 4,
+      "video_id": "O2gerCxEXvc",
+      "text": "system it is doing multi-step reasoning it is not go and book the flight ticket it knows that you need to check visa so it will call visa agent and check if the visa is there and if visa is there then it will do further steps. So it is doing multi-step reasoning multi-step planning and working on a complex goal autonomously. . Now there is some control you need to give you need to keep on this agents. You can't make them fully autonomous. You can't give them your bank password. So there is some level of control that needs to be given. So agentic AI is a system where one or more AI agents work autonomously often over long task complex task making decisions using tools and even other agents to reach a goal. . So as you can see as you evolve from simple generative AI system with only LLM to AI agent to agentic AI you are capable of performing even more and more complex task. With only LLM you get just Q&A with the knowledge cutff with AI agent you can get access to tools and memory and you can perform narrow simple task. With agentic AI you can have multiple agents. It's not absolutely required that you need to have multiple agent. By the way, agentic AI can have single",
+      "start": 346.16,
+      "end": 432.56
+    },
+    {
+      "id": 5,
+      "video_id": "O2gerCxEXvc",
+      "text": "agent only. But other than agent, it has other components and it is able to handle multi-step goals with planning and coordination. Tool usage in genai is non. AI agent will use tools and agent also uses the tools and autonomous decision making is highest. When it comes to agentic AI, there are many tools available that you can use to build agentic AI system. One of the tools is N8N. So I am showing you the workflow diagram in N8N. And here LLM will be part of it. . So if you look at any agentic AI system, it will have generative AI as a core component of it. . So this entire system is AI agent and one of the component is your Gemini LLM model which is generative AI. So generative is part of or a component of agentic AI systems. There are many frameworks available to build agentic AI systems agnu and so on. And by the way whatever definitions we have discussed don't take them too rigidly some people no AI agent means this and agentic AI means this. My friend who is a creator of Agno framework defines these agentic system into five levels. . So first level is agent with tools and instruction. Level two is agents with knowledge and so on. So different people",
+      "start": 429.599,
+      "end": 518.959
+    },
+    {
+      "id": 6,
+      "video_id": "O2gerCxEXvc",
+      "text": "define it differently. As long as you understand this core fundamental which is agents are able to do some autonomous action for narrow task. And when you move to agentic AI, your complexity increases and usually there are more than one agent. So generative AI to AI agent to agentic AI, the complexity of the task that you can perform increases and it becomes more and more sophisticated. Now folks, I have this langraph tutorial where I have explained how to build AI agents using this popular framework. So just watch it out. I have given examples of how do you build a chatbot with tools and memory human in the loop etc. If you want to build build fully agentic AI system such as let's say you want to onboard an employee who is joining the organization then in our AI boot camp we have this complete project where you just say onboard this new employee and what it will do is it will add the employee to HRMS system it will send welcome email to employees it will notify the manager and so on. So here we used clot desktop as a front end and as a back end we have built an MCP server. . So that's part of our boot camps project. I hope this particular video",
+      "start": 516.24,
+      "end": 601.4399999999999
+    },
+    {
+      "id": 7,
+      "video_id": "O2gerCxEXvc",
+      "text": "gave you some understanding on these three different concepts. If you have any questions post in the comment box below. If you this video give it a thumbs up and share it with your friends.",
+      "start": 599.36,
+      "end": 610.8000000000001
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#312e81" />
+      <stop offset="100%" stop-color="#38bdf8" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="720" fill="url(#g1)" />
+  <g fill="rgba(255,255,255,0.2)">
+    <circle cx="980" cy="140" r="120" />
+    <circle cx="200" cy="520" r="160" />
+  </g>
+  <text x="80" y="160" fill="#ffffff" font-size="52" font-family="Manrope, Arial, sans-serif" font-weight="700">Python Full Stack</text>
+  <text x="80" y="220" fill="#e2e8f0" font-size="24" font-family="Manrope, Arial, sans-serif">OrionTutor Learning Track</text>
+</svg>
