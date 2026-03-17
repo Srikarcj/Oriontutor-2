@@ -1,24 +1,27 @@
 from typing import Any, Dict, List
 
+import logging
+
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, constr
 
 from backend.llm.groq_client import get_groq_client
 
 router = APIRouter()
+logger = logging.getLogger("lessons")
 
 
 class LessonRequest(BaseModel):
-    title: str
-    summary: str | None = ""
-    content: str | None = ""
-    keywords: List[str] | None = None
+    title: constr(min_length=1, max_length=200)
+    summary: constr(max_length=5000) | None = ""
+    content: constr(max_length=12000) | None = ""
+    keywords: List[constr(min_length=1, max_length=40)] | None = None
 
 
 class GradeRequest(BaseModel):
-    question: str
-    expected: str
-    answer: str
+    question: constr(min_length=3, max_length=1000)
+    expected: constr(min_length=1, max_length=2000)
+    answer: constr(min_length=1, max_length=2000)
 
 
 @router.post("/generate")
@@ -33,7 +36,8 @@ async def generate_lesson(payload: LessonRequest) -> Dict[str, Any]:
         )
         return package
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Lesson generation failed: {exc}")
+        logger.exception("Lesson generation failed")
+        raise HTTPException(status_code=500, detail="Lesson generation failed.")
 
 
 @router.post("/grade")
@@ -42,4 +46,5 @@ async def grade_answer(payload: GradeRequest) -> Dict[str, Any]:
         client = get_groq_client()
         return client.grade_free_text_answer(payload.question, payload.expected, payload.answer)
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Lesson grading failed: {exc}")
+        logger.exception("Lesson grading failed")
+        raise HTTPException(status_code=500, detail="Lesson grading failed.")

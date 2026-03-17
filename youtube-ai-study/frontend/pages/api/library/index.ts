@@ -1,55 +1,30 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getAuth } from "@clerk/nextjs/server";
-import { listUserLibrary } from "../../../lib/server/data";
+import { applyRateLimit } from "../../../lib/server/rate-limit";
+import { readRequired, serverEnv } from "../../../lib/server/env";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    if (req.method !== "GET") {
-      return res.status(405).json({ detail: "Method not allowed" });
-    }
-
-    const { userId } = getAuth(req);
-    if (!userId) {
-      return res.status(401).json({ detail: "Unauthorized" });
-    }
-
-    const rows = await listUserLibrary(userId);
-    const payload = rows.map((row: any) => {
-      const video = row.videos;
-      const content = Array.isArray(video?.video_content) ? video.video_content[0] : video?.video_content;
-      return {
-        id: video?.id,
-        youtube_url: video?.youtube_url,
-        title: video?.title,
-        thumbnail: video?.thumbnail,
-        created_at: video?.created_at,
-        saved_at: row.saved_at,
-        content: content
-          ? {
-              summary: content.summary || "",
-              notes: content.notes || null,
-              chapters: Array.isArray(content.chapters) ? content.chapters : [],
-              quiz: Array.isArray(content.quiz) ? content.quiz : [],
-              pdf_url: content.pdf_url || null,
-              topics: video?.notes_row?.topics || [],
-              mindmap: video?.mindmap_row?.mindmap_json || null,
-              flashcards: video?.flashcards_rows || [],
-              visual_insights: video?.visual_insights_rows || [],
-            }
-          : null,
-      };
-    });
-
-    return res.status(200).json({ items: payload });
-  } catch (error: any) {
-    const message = error?.message || "Failed to load library.";
-    if (message.toLowerCase().includes("relation") || message.toLowerCase().includes("does not exist")) {
-      return res.status(200).json({
-        items: [],
-        warning:
-          "Database schema is missing. Run `npm run db:bootstrap` with SUPABASE_DB_URL set in .env.local.",
-      });
-    }
-    return res.status(500).json({ detail: message });
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).json({ error: "Method not allowed" });
   }
+
+  const limit = applyRateLimit(req, res, { windowMs: 60_000, max: 60, keyPrefix: "library-list" });
+  if (!limit.allowed) return res.status(429).json({ error: "Too many requests" });
+
+  const { userId } = getAuth(req);
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const backendUrl = readRequired("BACKEND_URL");
+  const upstream = await fetch(`${backendUrl}/api/library`, {
+    method: "GET",
+    headers: {
+      "X-User-Id": userId,
+      ...(serverEnv.backendApiKey ? { "X-Internal-API-Key": serverEnv.backendApiKey } : {}),
+    },
+  });
+
+  const text = await upstream.text();
+  if (!upstream.ok) return res.status(upstream.status).json({ error: text || "Failed to load library" });
+  return res.status(200).json(JSON.parse(text));
 }

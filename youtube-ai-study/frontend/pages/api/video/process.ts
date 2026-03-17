@@ -4,6 +4,7 @@ import type { Notes } from "../../../lib/types";
 import { processVideoSchema, getYouTubeThumbnail } from "../../../lib/validation/schemas";
 import { serverEnv } from "../../../lib/server/env";
 import { findVideoByUrl, getUserPlanUsage, saveVideoResult, upsertUser } from "../../../lib/server/data";
+import { applyRateLimit } from "../../../lib/server/rate-limit";
 
 function sanitizeNotes(value: any): Notes {
   const detailed = value?.detailed_explanation;
@@ -58,6 +59,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(405).json({ detail: "Method not allowed" });
     }
 
+    const limit = applyRateLimit(req, res, { windowMs: 60_000, max: 30, keyPrefix: "video-process" });
+    if (!limit.allowed) {
+      return res.status(429).json({ detail: "Too many requests" });
+    }
+
     const auth = getAuth(req);
     if (!auth.userId) {
       return res.status(401).json({ detail: "Unauthorized" });
@@ -108,9 +114,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     let upstream: Response;
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (serverEnv.backendApiKey) {
+        headers["X-Internal-API-Key"] = serverEnv.backendApiKey;
+      }
       upstream = await fetch(`${serverEnv.backendUrl}/api/video/process`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ youtube_url: youtubeUrl }),
         signal: controller.signal,
       });

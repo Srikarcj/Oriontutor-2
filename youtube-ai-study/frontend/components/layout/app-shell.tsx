@@ -1,13 +1,11 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { Bell, Menu, PanelLeft, Search } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton, SignUpButton, useClerk, useUser } from "@clerk/nextjs";
 import { ReactNode, useEffect, useMemo, useState } from "react";
-import { courses as localCourses } from "../../lib/course-data";
-
 const navItems = [
-  { href: "/learning", label: "Learning Hub" },
+  { href: "/learning-hub", label: "Learning Hub" },
   { href: "/study-materials", label: "Study Materials" },
   { href: "/library", label: "Library" },
   { href: "/leaderboard", label: "Leaderboard" },
@@ -72,18 +70,28 @@ export function AppShell({
       .slice(0, 3)
       .map((category) => ({
         label: category,
-        href: `/learning?category=${encodeURIComponent(category)}`,
+        href: `/learning-hub?category=${encodeURIComponent(category)}`,
         meta: "Category",
       }));
     return [
       ...courseMatches.map((course) => ({
         label: course.title,
-        href: `/learning/${course.slug}`,
-        meta: `${course.category} · ${course.level}`,
+        href: `/course/${course.slug}`,
+        meta: `${course.category || "Course"}`,
       })),
       ...categoryMatches,
     ];
   }, [searchQuery, searchCourses, searchCategories]);
+
+  const navigate = (href: string) => {
+    const prev = typeof window !== "undefined" ? window.location.pathname : "";
+    router.push(href);
+    if (typeof window !== "undefined") {
+      window.setTimeout(() => {
+        if (window.location.pathname === prev) window.location.href = href;
+      }, 400);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -91,14 +99,14 @@ export function AppShell({
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!active) return;
-        const items = data?.items?.length ? data.items : localCourses;
+        const items = data?.items?.length ? data.items : [];
         setSearchCourses(items);
-        setSearchCategories(Array.from(new Set(items.map((item: any) => item.category))).filter(Boolean));
+        setSearchCategories(Array.from(new Set(items.map((item: any) => item.category))).filter(Boolean) as string[]);
       })
       .catch(() => {
         if (!active) return;
-        setSearchCourses(localCourses);
-        setSearchCategories(Array.from(new Set(localCourses.map((item) => item.category))).filter(Boolean));
+        setSearchCourses([]);
+        setSearchCategories([]);
       });
     return () => {
       active = false;
@@ -111,6 +119,8 @@ export function AppShell({
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // removed click-blocker scan (was too heavy and could freeze the page)
 
   return (
     <div className="shell-app">
@@ -151,18 +161,18 @@ export function AppShell({
             {searchOpen && searchResults.length ? (
               <div className="app-search-results">
                 {searchResults.map((result) => (
-                  <Link
+                  <button
                     key={`${result.href}-${result.label}`}
-                    href={result.href}
                     className="app-search-result"
                     onClick={() => {
                       setSearchOpen(false);
                       setSearchQuery("");
+                      navigate(result.href);
                     }}
                   >
                     <span>{result.label}</span>
                     <em>{result.meta}</em>
-                  </Link>
+                  </button>
                 ))}
               </div>
             ) : null}
@@ -187,10 +197,10 @@ export function AppShell({
             <Menu size={18} />
           </button>
           <SignedOut>
-            <SignInButton mode="modal">
+            <SignInButton mode="redirect">
               <button className="app-ghost-btn">Sign in</button>
             </SignInButton>
-            <SignUpButton mode="modal">
+            <SignUpButton mode="redirect">
               <button className="app-ghost-btn">Sign up</button>
             </SignUpButton>
           </SignedOut>
@@ -206,7 +216,7 @@ export function AppShell({
               {profileOpen ? (
                 <div className="app-profile-menu" onMouseLeave={() => setProfileOpen(false)}>
                   <Link href="/profile" onClick={() => setProfileOpen(false)}>My Profile</Link>
-                  <Link href="/my-learning" onClick={() => setProfileOpen(false)}>My Learning</Link>
+                  <Link href="/learning-hub" onClick={() => setProfileOpen(false)}>My Learning</Link>
                   <Link href="/profile" onClick={() => setProfileOpen(false)}>Settings</Link>
                   <button
                     className="app-signout-btn"
@@ -238,10 +248,10 @@ export function AppShell({
         </div>
         <div className="app-mobile-actions">
           <SignedOut>
-            <SignInButton mode="modal">
+            <SignInButton mode="redirect">
               <button className="app-ghost-btn">Sign in</button>
             </SignInButton>
-            <SignUpButton mode="modal">
+            <SignUpButton mode="redirect">
               <button className="app-ghost-btn">Sign up</button>
             </SignUpButton>
           </SignedOut>

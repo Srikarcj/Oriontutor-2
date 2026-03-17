@@ -2,7 +2,6 @@ from typing import Dict, List, Tuple
 import time
 
 import numpy as np
-
 from backend.llm.groq_client import get_groq_client
 from backend.services.embedding_service import embed_texts
 from backend.services.chunk_service import TranscriptChunk, build_chunks
@@ -12,11 +11,12 @@ from backend.vectorstore.faiss_store import save_video_index, search_video_chunk
 _ANSWER_CACHE: Dict[str, Tuple[str, float]] = {}
 _ANSWER_CACHE_TTL_SECONDS = 300
 
-def _cache_key(video_id: str, question: str) -> str:
-    return f"{video_id}::{question.strip().lower()}"
+def _cache_key(video_id: str, question: str, suffix: str = "") -> str:
+    base = f"{video_id}::{question.strip().lower()}"
+    return f"{base}::{suffix}" if suffix else base
 
-def _get_cached_answer(video_id: str, question: str) -> str | None:
-    key = _cache_key(video_id, question)
+def _get_cached_answer(video_id: str, question: str, suffix: str = "") -> str | None:
+    key = _cache_key(video_id, question, suffix)
     entry = _ANSWER_CACHE.get(key)
     if not entry:
         return None
@@ -26,8 +26,8 @@ def _get_cached_answer(video_id: str, question: str) -> str | None:
         return None
     return answer
 
-def _set_cached_answer(video_id: str, question: str, answer: str) -> None:
-    _ANSWER_CACHE[_cache_key(video_id, question)] = (answer, time.time())
+def _set_cached_answer(video_id: str, question: str, answer: str, suffix: str = "") -> None:
+    _ANSWER_CACHE[_cache_key(video_id, question, suffix)] = (answer, time.time())
 
 def _trim_chunks(chunks: List[Dict], max_chars: int = 900) -> List[Dict]:
     trimmed: List[Dict] = []
@@ -38,6 +38,25 @@ def _trim_chunks(chunks: List[Dict], max_chars: int = 900) -> List[Dict]:
             copy["text"] = text[:max_chars]
         trimmed.append(copy)
     return trimmed
+
+
+def _search_pdf_chunks(document_ids: List[str], question_embedding: np.ndarray, top_k: int = 5) -> List[Dict]:
+    chunks: List[Dict] = []
+    if not document_ids:
+        return chunks
+    for doc_id in document_ids[:10]:
+        try:
+            retrieved = search_video_chunks(
+                f"pdf_{doc_id}",
+                np.asarray(question_embedding, dtype="float32"),
+                top_k=top_k,
+            )
+            for item in retrieved:
+                item["source"] = "pdf"
+            chunks.extend(retrieved)
+        except VectorStoreError:
+            continue
+    return chunks
 
 
 def index_video_transcript(video_id: str, chunks: List[TranscriptChunk]) -> None:
@@ -119,6 +138,44 @@ def answer_question_for_video(video_id: str, question: str, top_k: int = 5) -> s
     client = get_groq_client()
     trimmed = _trim_chunks(retrieved_chunks)
     answer = client.answer_question(question=question, context_chunks=trimmed)
+    _set_cached_answer(video_id, question, answer)
+    return answer
+
+
+def answer_question_multi(video_id: str, question: str, pdf_document_ids: List[str], top_k: int = 5) -> str:
+    """
+    RAG over video transcript chunks + PDF chunks.
+    """
+    cached = _get_cached_answer(video_id, question)
+    if cached:
+        return cached
+
+    # Ensure video index exists
+    _ensure_index_for_video(video_id)
+
+    # Video chunks
+    try:
+        question_embedding = embed_texts([question])
+        video_chunks = search_video_chunks(
+            video_id,
+            np.asarray(question_embedding[0], dtype="float32"),
+            top_k=top_k,
+        )
+    except Exception:
+        video_chunks = []
+
+    # PDF chunks from shared vector store
+    pdf_context = _search_pdf_chunks(pdf_document_ids, question_embedding[0], top_k=top_k)
+
+    combined = _trim_chunks(video_chunks + pdf_context)
+    if not combined:
+        client = get_groq_client()
+        answer = client.answer_general_question(question=question)
+        _set_cached_answer(video_id, question, answer)
+        return answer
+
+    client = get_groq_client()
+    answer = client.answer_question(question=question, context_chunks=combined)
     _set_cached_answer(video_id, question, answer)
     return answer
 

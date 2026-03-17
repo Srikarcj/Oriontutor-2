@@ -163,6 +163,17 @@ create table if not exists public.course_lessons (
   content text,
   created_at timestamptz not null default now()
 );
+alter table public.course_lessons add column if not exists level text;
+
+create table if not exists public.course_content (
+  id uuid primary key default gen_random_uuid(),
+  course_id uuid not null references public.courses(id) on delete cascade,
+  level text not null check (level in ('Beginner','Intermediate','Advanced')),
+  title text not null,
+  summary text,
+  content text,
+  created_at timestamptz not null default now()
+);
 
 create table if not exists public.course_enrollments (
   id uuid primary key default gen_random_uuid(),
@@ -190,6 +201,7 @@ create table if not exists public.course_materials (
   download_count int default 0,
   created_at timestamptz not null default now()
 );
+alter table public.course_materials add column if not exists level text;
 
 create table if not exists public.lesson_quizzes (
   id uuid primary key default gen_random_uuid(),
@@ -223,6 +235,38 @@ create table if not exists public.lesson_quiz_attempts (
   passed boolean default false,
   answers jsonb,
   completed_at timestamptz not null default now()
+);
+
+create table if not exists public.course_quizzes (
+  id uuid primary key default gen_random_uuid(),
+  course_id uuid not null references public.courses(id) on delete cascade,
+  lesson_id uuid references public.course_lessons(id) on delete set null,
+  quiz_type text not null check (quiz_type in ('pre','mini','final')),
+  title text,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.course_quiz_questions (
+  id uuid primary key default gen_random_uuid(),
+  quiz_id uuid not null references public.course_quizzes(id) on delete cascade,
+  prompt text not null,
+  options jsonb,
+  answer text,
+  explanation text,
+  position int default 0,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.course_quiz_results (
+  id uuid primary key default gen_random_uuid(),
+  quiz_id uuid not null references public.course_quizzes(id) on delete cascade,
+  user_id text not null references public.users(clerk_user_id) on delete cascade,
+  score numeric not null,
+  total int not null,
+  passed boolean default false,
+  level_assigned text,
+  details jsonb,
+  created_at timestamptz not null default now()
 );
 
 create table if not exists public.lesson_progress (
@@ -303,6 +347,7 @@ create table if not exists public.course_progress (
   updated_at timestamptz not null default now(),
   unique (user_id, course_slug)
 );
+alter table public.course_progress add column if not exists modules_enabled boolean default false;
 
 create table if not exists public.user_library_items (
   id uuid primary key default gen_random_uuid(),
@@ -311,6 +356,14 @@ create table if not exists public.user_library_items (
   title text not null,
   ref_id text,
   metadata jsonb,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.pdf_embeddings (
+  id uuid primary key default gen_random_uuid(),
+  document_id uuid not null references public.pdf_documents(id) on delete cascade,
+  chunk_id uuid references public.pdf_chunks(id) on delete cascade,
+  embedding jsonb,
   created_at timestamptz not null default now()
 );
 
@@ -328,6 +381,7 @@ alter table public.course_stages enable row level security;
 alter table public.course_lessons enable row level security;
 alter table public.course_enrollments enable row level security;
 alter table public.course_materials enable row level security;
+alter table public.course_content enable row level security;
 alter table public.lesson_quizzes enable row level security;
 alter table public.lesson_notes enable row level security;
 alter table public.lesson_quiz_attempts enable row level security;
@@ -342,6 +396,10 @@ alter table public.course_activity enable row level security;
 alter table public.pdf_documents enable row level security;
 alter table public.pdf_chunks enable row level security;
 alter table public.user_library_items enable row level security;
+alter table public.course_quizzes enable row level security;
+alter table public.course_quiz_questions enable row level security;
+alter table public.course_quiz_results enable row level security;
+alter table public.pdf_embeddings enable row level security;
 
 -- Policies
 do $$
@@ -358,6 +416,9 @@ begin
   end if;
   if not exists (select 1 from pg_policies where policyname = 'read_course_materials') then
     create policy "read_course_materials" on public.course_materials for select to anon, authenticated using (true);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'read_course_content') then
+    create policy "read_course_content" on public.course_content for select to anon, authenticated using (true);
   end if;
   if not exists (select 1 from pg_policies where policyname = 'read_leaderboard') then
     create policy "read_leaderboard" on public.leaderboard for select to anon, authenticated using (true);
@@ -394,6 +455,21 @@ begin
     using (auth.role() = 'service_role' or auth.uid()::text = user_id);
   end if;
 
+  if not exists (select 1 from pg_policies where policyname = 'course_quizzes_read') then
+    create policy "course_quizzes_read" on public.course_quizzes for select
+    using (true);
+  end if;
+
+  if not exists (select 1 from pg_policies where policyname = 'course_quiz_questions_read') then
+    create policy "course_quiz_questions_read" on public.course_quiz_questions for select
+    using (true);
+  end if;
+
+  if not exists (select 1 from pg_policies where policyname = 'course_quiz_results_owner') then
+    create policy "course_quiz_results_owner" on public.course_quiz_results for select
+    using (auth.role() = 'service_role' or auth.uid()::text = user_id);
+  end if;
+
   if not exists (select 1 from pg_policies where policyname = 'lesson_quiz_attempts_owner') then
     create policy "lesson_quiz_attempts_owner" on public.lesson_quiz_attempts for select
     using (auth.role() = 'service_role' or auth.uid()::text = user_id);
@@ -406,6 +482,11 @@ begin
 
   if not exists (select 1 from pg_policies where policyname = 'pdf_chunks_owner') then
     create policy "pdf_chunks_owner" on public.pdf_chunks for select
+    using (auth.role() = 'service_role');
+  end if;
+
+  if not exists (select 1 from pg_policies where policyname = 'pdf_embeddings_owner') then
+    create policy "pdf_embeddings_owner" on public.pdf_embeddings for select
     using (auth.role() = 'service_role');
   end if;
 
@@ -472,3 +553,135 @@ create table if not exists public.pdf_chunks (
   tokens jsonb,
   created_at timestamptz not null default now()
 );
+
+-- ------------------------------------------------------------
+-- Adaptive Learning System (Replace Learning Tables)
+-- ------------------------------------------------------------
+drop table if exists public.quiz_results cascade;
+drop table if exists public.quiz_attempts cascade;
+drop table if exists public.quizzes cascade;
+drop table if exists public.exams cascade;
+drop table if exists public.exam_results cascade;
+drop table if exists public.course_content cascade;
+drop table if exists public.course_materials cascade;
+drop table if exists public.course_enrollments cascade;
+drop table if exists public.modules cascade;
+drop table if exists public.enrollments cascade;
+drop table if exists public.courses cascade;
+
+create table if not exists public.courses (
+  id uuid primary key default gen_random_uuid(),
+  slug text unique not null,
+  title text not null,
+  description text,
+  category text,
+  difficulty text,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.modules (
+  id uuid primary key default gen_random_uuid(),
+  course_id uuid not null references public.courses(id) on delete cascade,
+  module_number int not null,
+  title text not null,
+  concept text not null,
+  explanation text,
+  level_type text not null check (level_type in ('beginner','intermediate','advanced')),
+  created_at timestamptz not null default now()
+);
+
+alter table public.modules add column if not exists introduction text;
+alter table public.modules add column if not exists examples text;
+alter table public.modules add column if not exists practice_questions jsonb;
+alter table public.modules add column if not exists practice_answers jsonb;
+alter table public.modules add column if not exists summary text;
+alter table public.modules add column if not exists advanced_content text;
+alter table public.modules add column if not exists learning_objectives text;
+alter table public.modules add column if not exists estimated_time int;
+
+create table if not exists public.module_progress (
+  id uuid primary key default gen_random_uuid(),
+  user_id text not null references public.users(clerk_user_id) on delete cascade,
+  course_id uuid not null references public.courses(id) on delete cascade,
+  module_id uuid not null references public.modules(id) on delete cascade,
+  status text not null default 'in_progress',
+  completed_at timestamptz default now(),
+  unique (user_id, module_id)
+);
+
+create table if not exists public.quizzes (
+  id uuid primary key default gen_random_uuid(),
+  course_id uuid not null references public.courses(id) on delete cascade,
+  question text not null,
+  options jsonb not null,
+  correct_answer text not null,
+  explanation text,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.enrollments (
+  id uuid primary key default gen_random_uuid(),
+  user_id text not null references public.users(clerk_user_id) on delete cascade,
+  course_id uuid not null references public.courses(id) on delete cascade,
+  skill_level text not null,
+  quiz_score numeric not null,
+  enrolled_at timestamptz not null default now(),
+  unique (user_id, course_id)
+);
+
+create table if not exists public.quiz_attempts (
+  id uuid primary key default gen_random_uuid(),
+  user_id text not null references public.users(clerk_user_id) on delete cascade,
+  course_id uuid not null references public.courses(id) on delete cascade,
+  score numeric not null,
+  attempt_count int not null default 1,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.library_items (
+  id uuid primary key default gen_random_uuid(),
+  user_id text not null references public.users(clerk_user_id) on delete cascade,
+  item_type text not null,
+  title text not null,
+  ref_id text,
+  metadata jsonb,
+  bookmarked boolean default false,
+  created_at timestamptz not null default now()
+);
+
+alter table public.courses enable row level security;
+alter table public.modules enable row level security;
+alter table public.quizzes enable row level security;
+alter table public.enrollments enable row level security;
+alter table public.quiz_attempts enable row level security;
+alter table public.module_progress enable row level security;
+alter table public.library_items enable row level security;
+
+do $$
+begin
+  if not exists (select 1 from pg_policies where policyname = 'read_courses_adaptive') then
+    create policy "read_courses_adaptive" on public.courses for select to anon, authenticated using (true);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'read_modules_adaptive') then
+    create policy "read_modules_adaptive" on public.modules for select to anon, authenticated using (true);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'read_quizzes_adaptive') then
+    create policy "read_quizzes_adaptive" on public.quizzes for select to anon, authenticated using (true);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'enrollments_owner_adaptive') then
+    create policy "enrollments_owner_adaptive" on public.enrollments for select
+    using (auth.role() = 'service_role' or auth.uid()::text = user_id);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'quiz_attempts_owner_adaptive') then
+    create policy "quiz_attempts_owner_adaptive" on public.quiz_attempts for select
+    using (auth.role() = 'service_role' or auth.uid()::text = user_id);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'module_progress_owner_adaptive') then
+    create policy "module_progress_owner_adaptive" on public.module_progress for select
+    using (auth.role() = 'service_role' or auth.uid()::text = user_id);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'library_items_owner_adaptive') then
+    create policy "library_items_owner_adaptive" on public.library_items for select
+    using (auth.role() = 'service_role' or auth.uid()::text = user_id);
+  end if;
+end $$;

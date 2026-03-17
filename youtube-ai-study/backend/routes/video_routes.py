@@ -2,7 +2,7 @@ from typing import Any, Dict
 import re
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, field_validator
 
 from backend.services.transcript_service import get_clean_transcript, TranscriptError, extract_video_id
 from backend.services.chunk_service import build_chunks
@@ -18,6 +18,15 @@ router = APIRouter()
 
 class VideoProcessRequest(BaseModel):
     youtube_url: HttpUrl
+
+    @field_validator("youtube_url")
+    @classmethod
+    def validate_youtube_url(cls, value: HttpUrl) -> HttpUrl:
+        host = value.host or ""
+        allowed_hosts = {"www.youtube.com", "youtube.com", "youtu.be"}
+        if host not in allowed_hosts:
+            raise ValueError("Only YouTube URLs are allowed.")
+        return value
 
 
 class NotesSchema(BaseModel):
@@ -104,8 +113,8 @@ async def process_video(request: VideoProcessRequest) -> Dict[str, Any]:
         transcript_payload = get_clean_transcript(str(request.youtube_url))
     except TranscriptError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Transcript processing failed: {exc}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Transcript processing failed.")
 
     video_id = transcript_payload["video_id"]
     raw_entries = transcript_payload["raw_entries"]

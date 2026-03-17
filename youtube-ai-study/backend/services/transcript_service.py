@@ -1,5 +1,6 @@
 from typing import List, Dict
 from urllib.parse import urlparse, parse_qs
+import re
 
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
 
@@ -18,18 +19,30 @@ def extract_video_id(youtube_url: str) -> str:
     if parsed.hostname in {"www.youtube.com", "youtube.com"}:
         query = parse_qs(parsed.query)
         if "v" in query:
-            return query["v"][0]
+            candidate = query["v"][0]
+            if _is_valid_video_id(candidate):
+                return candidate
 
     # Short youtu.be URL
     if parsed.hostname == "youtu.be":
-        return parsed.path.lstrip("/")
+        candidate = parsed.path.lstrip("/")
+        if _is_valid_video_id(candidate):
+            return candidate
 
     # Fallback: last path segment
     path_parts = [p for p in parsed.path.split("/") if p]
     if path_parts:
-        return path_parts[-1]
+        candidate = path_parts[-1]
+        if _is_valid_video_id(candidate):
+            return candidate
 
     raise TranscriptError("Could not extract YouTube video ID from URL.")
+
+
+def _is_valid_video_id(video_id: str) -> bool:
+    if not video_id:
+        return False
+    return bool(re.fullmatch(r"[A-Za-z0-9_-]{6,64}", video_id))
 
 
 def fetch_raw_transcript(video_id: str, language_preference: List[str] | None = None) -> List[Dict]:

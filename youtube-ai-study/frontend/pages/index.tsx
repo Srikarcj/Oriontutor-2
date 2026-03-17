@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { SignedIn, SignedOut, SignInButton, SignUpButton } from "@clerk/nextjs";
 import {
@@ -31,6 +32,7 @@ type LiveStats = {
 };
 
 export default function HomePage() {
+  const router = useRouter();
   const [featuredCourses, setFeaturedCourses] = useState<any[]>([]);
   const [categoryList, setCategoryList] = useState<string[]>([]);
   const [liveStats, setLiveStats] = useState<LiveStats>({
@@ -248,7 +250,7 @@ export default function HomePage() {
               </p>
               <div className="pre-hero-actions">
                 <SignedOut>
-                  <SignUpButton mode="modal">
+                  <SignUpButton mode="redirect">
                     <button className="cta-primary">Start Free</button>
                   </SignUpButton>
                 </SignedOut>
@@ -330,7 +332,7 @@ export default function HomePage() {
               </p>
               <div className="hero-actions">
                 <SignedOut>
-                  <SignUpButton mode="modal">
+                  <SignUpButton mode="redirect">
                     <button className="cta-primary">
                       Try OrionTutor <ArrowRight size={16} />
                     </button>
@@ -417,10 +419,16 @@ export default function HomePage() {
             <div className="course-grid">
               {featuredCourses.map((course) => {
                 const Icon = getCourseIcon(course.symbol);
+                const slug = String(course?.slug || "").trim();
+                const href = slug ? `/course/${encodeURIComponent(slug)}` : "/learning-hub";
                 return (
                 <div key={course.slug} className="course-card">
                   <div className="course-media">
-                    <img src={course.image_url || course.image} alt={course.title} loading="lazy" />
+                    {course.image_url || course.image ? (
+                      <img src={course.image_url || course.image} alt={course.title || "Course"} loading="lazy" />
+                    ) : (
+                      <div className="course-card-placeholder" />
+                    )}
                   </div>
                   <div className="course-body">
                     <div className="course-meta">
@@ -428,18 +436,28 @@ export default function HomePage() {
                         <Icon size={14} />
                         {course.category}
                       </span>
-                      <span>{course.level}</span>
+                      <span>{course.difficulty || "Intermediate"}</span>
                     </div>
                     <h3>{course.title}</h3>
-                    <p>Instructor: {course.instructor}</p>
+                    <p>Adaptive track tailored to your skill level.</p>
                     <div className="course-rating">
                       <Stars size={16} />
-                      <span>{course.rating.toFixed(1)}</span>
-                      <em>{course.students.toLocaleString()} learners</em>
+                      <span>{Number(course.rating ?? 0).toFixed(1)}</span>
+                      <em>{Number(course.students ?? 0).toLocaleString()} learners</em>
                     </div>
-                    <Link href={`/learning/${course.slug}`} className="cta-primary small">
+                    <button
+                      type="button"
+                      className="cta-primary small"
+                      onClick={() => {
+                        const prev = window.location.pathname;
+                        router.push(href);
+                        window.setTimeout(() => {
+                          if (window.location.pathname === prev) window.location.href = href;
+                        }, 400);
+                      }}
+                    >
                       Enroll Now
-                    </Link>
+                    </button>
                   </div>
                 </div>
               );
@@ -457,7 +475,7 @@ export default function HomePage() {
             </div>
             <div className="category-grid">
               {categoryList.map((category) => (
-                <Link key={category} href={`/learning?category=${encodeURIComponent(category)}`} className="category-card">
+                <Link key={category} href={`/learning-hub?category=${encodeURIComponent(category)}`} className="category-card">
                   <strong>{category}</strong>
                   <span>View courses</span>
                 </Link>
@@ -632,12 +650,12 @@ export default function HomePage() {
             </div>
             <div className="final-cta-actions">
               <SignedOut>
-                <SignUpButton mode="modal">
+                <SignUpButton mode="redirect">
                   <button className="cta-primary">
                     Try OrionTutor Now <ArrowRight size={16} />
                   </button>
                 </SignUpButton>
-                <SignInButton mode="modal">
+                <SignInButton mode="redirect">
                   <button className="cta-secondary">Sign in</button>
                 </SignInButton>
               </SignedOut>

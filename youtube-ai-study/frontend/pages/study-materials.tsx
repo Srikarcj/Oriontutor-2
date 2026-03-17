@@ -1,85 +1,60 @@
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell } from "../components/layout/app-shell";
-
-type Material = {
-  id: string;
-  title: string;
-  description: string;
-  size: string;
-  type: string;
-  course: string;
-  category: string;
-  signed_url: string | null;
-  url: string | null;
-};
+import PDFChatBot from "../components/pdf-chatbot";
 
 export default function StudyMaterialsPage() {
-  const [typeFilter, setTypeFilter] = useState("All");
-  const [materials, setMaterials] = useState<Material[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [selected, setSelected] = useState<string>("");
+  const [materials, setMaterials] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch("/api/materials")
-      .then((res) => res.json())
-      .then((data) => setMaterials(data.items || []))
-      .catch(() => setMaterials([]));
+    fetch("/api/courses")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        const items = data?.items || [];
+        setCourses(items);
+        if (items.length && !selected) setSelected(items[0].slug || items[0].id);
+      });
   }, []);
 
-  const types = useMemo(() => ["All", ...Array.from(new Set(materials.map((item) => item.type)))], [materials]);
-  const filtered = materials.filter((item) => typeFilter === "All" || item.type === typeFilter);
+  useEffect(() => {
+    if (!selected) return;
+    fetch(`/api/courses/content?course_slug=${encodeURIComponent(selected)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        setMaterials(data?.materials || []);
+      });
+  }, [selected]);
 
   return (
-    <AppShell title="Study Materials" subtitle="Download notes, code, assignments, and practice sets">
-      <section className="materials-page">
-        <div className="materials-toolbar">
-          <div>
-            <h2>Learning Resources</h2>
-            <p>All materials are linked to your enrolled courses.</p>
-          </div>
-          <div className="materials-filter">
-            {types.map((type) => (
-              <button
-                key={type}
-                className={typeFilter === type ? "active" : ""}
-                onClick={() => setTypeFilter(type)}
-              >
-                {type}
-              </button>
+    <AppShell title="Study Materials" subtitle="Access PDFs and resources aligned to your level.">
+      <div className="materials-header">
+        <label>
+          Course
+          <select value={selected} onChange={(event) => setSelected(event.target.value)}>
+            {courses.map((course) => (
+              <option key={course.id} value={course.slug || course.id}>
+                {course.title}
+              </option>
             ))}
+          </select>
+        </label>
+      </div>
+      <div className="materials-grid">
+        {materials.map((item) => (
+          <div key={item.id} className="material-card">
+            <strong>{item.title}</strong>
+            <span>{item.material_type}</span>
+            {item.description ? <p>{item.description}</p> : null}
+            {item.url ? (
+              <a href={item.url} target="_blank" rel="noreferrer" className="material-link">
+                Open material
+              </a>
+            ) : null}
           </div>
-        </div>
-        <div className="materials-grid">
-          {filtered.map((material) => {
-            const href = material.signed_url || material.url || "#";
-            return (
-              <div key={`${material.id}-${material.course}`} className="material-card">
-                <span>{material.type}</span>
-                <strong>{material.title}</strong>
-                <p>{material.description}</p>
-                <div className="material-meta">
-                  <em>{material.course}</em>
-                  <em>{material.size}</em>
-                </div>
-                <div className="material-actions">
-                  <a className="cta-secondary" href={href} target="_blank" rel="noreferrer">
-                    View
-                  </a>
-                  <a className="cta-primary small" href={href} download>
-                    Download
-                  </a>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div className="materials-qa">
-          <h3>Ask Questions from PDFs</h3>
-          <p>Upload any PDF and get accurate answers with citations.</p>
-          <Link href="/pdf-qa" className="cta-primary small">
-            Open PDF Q and A
-          </Link>
-        </div>
-      </section>
+        ))}
+      </div>
+      <PDFChatBot />
     </AppShell>
   );
 }

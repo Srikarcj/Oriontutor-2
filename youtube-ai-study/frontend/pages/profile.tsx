@@ -9,7 +9,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { supabaseClient } from "../lib/client/supabase";
 
 export default function ProfilePage() {
   const { user } = useUser();
@@ -28,24 +27,10 @@ export default function ProfilePage() {
     hydrate().catch(() => null);
   }, []);
 
-  useEffect(() => {
-    if (!supabaseClient || !user) return;
-    const channel = supabaseClient
-      .channel("profile-stream")
-      .on("postgres_changes", { event: "*", schema: "public", table: "lesson_quiz_attempts" }, () => {
-        fetch("/api/profile").then((res) => res.json()).then(setProfile).catch(() => null);
-      })
-      .subscribe();
-    return () => {
-      supabaseClient.removeChannel(channel);
-    };
-  }, [user]);
-
   const progressSeries = (profile?.progress || []).map((row: any) => {
-    const total = enrollments.find((e) => e.courses?.slug === row.course_slug)?.courses?.lessons_count || 0;
-    const cleared = row.passed_days?.length || 0;
-    const pct = total ? Math.round((cleared / total) * 100) : 0;
-    return { name: row.course_slug.replace(/-/g, " "), progress: pct };
+    const pct = Math.round(Number(row.progress || 0));
+    const label = row.courses?.title || row.courses?.slug || "Course";
+    return { name: label, progress: pct };
   });
 
   return (
@@ -72,7 +57,7 @@ export default function ProfilePage() {
               {enrollments.map((enroll) => (
                 <li key={enroll.course_id}>
                   <strong>{enroll.courses?.title || "Course"}</strong>
-                  <span>{profile?.progress?.find((p: any) => p.course_slug === enroll.courses?.slug)?.passed_days?.length || 0} lessons cleared</span>
+                  <span>{Math.round(enroll.progress || 0)}% complete</span>
                 </li>
               ))}
             </ul>

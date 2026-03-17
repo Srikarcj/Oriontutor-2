@@ -17,7 +17,7 @@ export async function upsertUser(row: UserRow) {
 
   const { data, error } = await db
     .from("users")
-    .upsert(payload, { onConflict: "clerk_user_id" })
+    .upsert(payload as any, { onConflict: "clerk_user_id" })
     .select("*")
     .single();
 

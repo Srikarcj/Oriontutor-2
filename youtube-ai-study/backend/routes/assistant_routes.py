@@ -13,6 +13,16 @@ logger = logging.getLogger("assistant")
 
 MAX_FILES = 5
 MAX_TEXT_CHARS = 12000
+MAX_PROMPT_CHARS = 4000
+MAX_FILE_BYTES = 2 * 1024 * 1024
+MAX_TOTAL_BYTES = 8 * 1024 * 1024
+ALLOWED_MIME_TYPES = {
+    "application/pdf",
+    "application/json",
+    "application/csv",
+}
+ALLOWED_IMAGE_PREFIX = "image/"
+ALLOWED_TEXT_PREFIX = "text/"
 
 
 def _safe_decode(payload: bytes) -> str:
@@ -62,16 +72,25 @@ async def assistant(
         prompt = prompt.strip()
         if not prompt:
             raise HTTPException(status_code=400, detail="Prompt is required.")
+        if len(prompt) > MAX_PROMPT_CHARS:
+            raise HTTPException(status_code=413, detail="Prompt too large.")
 
         snippets = []
         image_names = []
+        total_bytes = 0
+
+        if len(uploads) > MAX_FILES:
+            raise HTTPException(status_code=400, detail=f"Too many files. Max {MAX_FILES}.")
 
         for upload in uploads[:MAX_FILES]:
             payload = await upload.read()
+            total_bytes += len(payload)
+            if len(payload) > MAX_FILE_BYTES or total_bytes > MAX_TOTAL_BYTES:
+                raise HTTPException(status_code=413, detail="Uploaded file(s) too large.")
             mime = upload.content_type or ""
             filename = upload.filename or "upload"
 
-            if mime.startswith("image/"):
+            if mime.startswith(ALLOWED_IMAGE_PREFIX):
                 text = _extract_image_text(payload)
                 if text:
                     snippets.append(f"Image: {filename}\n{text[:MAX_TEXT_CHARS]}")
@@ -85,10 +104,14 @@ async def assistant(
                     snippets.append(f"File: {filename}\n{text[:MAX_TEXT_CHARS]}")
                 continue
 
-            if mime.startswith("text/") or mime in {"application/json", "application/csv"}:
+            if mime.startswith(ALLOWED_TEXT_PREFIX) or mime in {"application/json", "application/csv"}:
                 text = _safe_decode(payload)
                 if text:
                     snippets.append(f"File: {filename}\n{text[:MAX_TEXT_CHARS]}")
+                continue
+
+            if mime not in ALLOWED_MIME_TYPES and not mime.startswith(ALLOWED_IMAGE_PREFIX) and not mime.startswith(ALLOWED_TEXT_PREFIX):
+                raise HTTPException(status_code=400, detail=f"Unsupported file type: {mime or 'unknown'}")
 
         if snippets:
             joined_snippets = "\n\n".join(snippets)
@@ -130,14 +153,14 @@ async def assistant(
 
         if response.status_code >= 400:
             logger.error("Groq error %s: %s", response.status_code, response.text)
-            raise HTTPException(status_code=500, detail=response.text)
+            raise HTTPException(status_code=502, detail="Upstream AI request failed.")
 
         data = response.json()
         answer = data.get("choices", [{}])[0].get("message", {}).get("content", "")
         return {"answer": answer or "No answer returned."}
     except HTTPException:
         raise
-    except Exception as exc:
+    except Exception:
         logger.exception("Assistant failed")
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Assistant failed: {exc}")
+        raise HTTPException(status_code=500, detail="Assistant failed.")

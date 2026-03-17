@@ -3,6 +3,7 @@ import { getAuth } from "@clerk/nextjs/server";
 import { askQuestionSchema } from "../../../lib/validation/schemas";
 import { serverEnv } from "../../../lib/server/env";
 import { getVideoForUser } from "../../../lib/server/data";
+import { applyRateLimit } from "../../../lib/server/rate-limit";
 
 function deriveBackendVideoId(inputId: string): string {
   const raw = String(inputId || "").trim();
@@ -17,6 +18,11 @@ function deriveBackendVideoId(inputId: string): string {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ detail: "Method not allowed" });
+  }
+
+  const limit = applyRateLimit(req, res, { windowMs: 60_000, max: 60, keyPrefix: "qa-ask" });
+  if (!limit.allowed) {
+    return res.status(429).json({ detail: "Too many requests" });
   }
 
   const auth = getAuth(req);
@@ -38,12 +44,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       : deriveBackendVideoId(String((video as any)?.id || parsed.data.video_id))
     : deriveBackendVideoId(parsed.data.video_id);
   try {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (serverEnv.backendApiKey) {
+      headers["X-Internal-API-Key"] = serverEnv.backendApiKey;
+    }
     upstream = await fetch(`${serverEnv.backendUrl}/api/qa/ask`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({
         video_id: backendVideoId,
         question: parsed.data.question,
+        pdf_document_ids: parsed.data.pdf_document_ids || undefined,
       }),
     });
   } catch {
