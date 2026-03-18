@@ -17,6 +17,7 @@ from backend.routes.video_routes import router as video_router
 from backend.routes.qa_routes import router as qa_router
 from backend.routes.lessons_routes import router as lessons_router
 from backend.routes.pdf_routes import router as pdf_router
+from backend.routes.knowledge_routes import router as knowledge_router
 from backend.routes.assistant_routes import router as assistant_router
 from backend.app.modules.learning.routers import router as learning_router
 from backend.utils.security import SimpleRateLimiter, get_client_ip
@@ -75,6 +76,7 @@ def create_app() -> FastAPI:
     app.include_router(qa_router, prefix="/api/qa", tags=["qa"])
     app.include_router(lessons_router, prefix="/api/lessons", tags=["lessons"])
     app.include_router(pdf_router, prefix="/api/pdf", tags=["pdf"])
+    app.include_router(knowledge_router, prefix="/api/knowledge", tags=["knowledge"])
     app.include_router(assistant_router, prefix="/api/assistant", tags=["assistant"])
     app.include_router(learning_router, prefix="/api", tags=["learning"])
 

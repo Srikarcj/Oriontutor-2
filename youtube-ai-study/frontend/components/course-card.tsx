@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getCourseIcon } from "../lib/course-icons";
 
 export type CourseCardProps = {
   course: {
@@ -15,10 +16,36 @@ export type CourseCardProps = {
 
 export default function CourseCard({ course }: CourseCardProps) {
   const slug = course.slug || course.id || "";
+  const themeKey = (course.slug || "").toLowerCase();
+  const themeClass = themeKey ? `course-theme-${themeKey}` : "";
+  const symbolName =
+    (course as any).symbol ||
+    (themeKey === "genai-dev"
+      ? "Sparkles"
+      : themeKey === "fullstack-ai"
+      ? "Code"
+      : themeKey === "ai-agents"
+      ? "Workflow"
+      : themeKey === "mlops-deploy"
+      ? "Cloud"
+      : themeKey === "data-eng"
+      ? "Database"
+      : themeKey === "prompt-adv"
+      ? "Brain"
+      : "Sparkles");
+  const Icon = getCourseIcon(String(symbolName));
   return (
-    <div className="course-card">
+    <div className={`course-card ${themeClass}`}>
       <div className="course-media">
-        {course.image_url ? <img src={course.image_url} alt={course.title || "Course"} /> : <div className="course-card-placeholder" />}
+        {course.image_url ? (
+          <img src={course.image_url} alt={course.title || "Course"} />
+        ) : (
+          <div className="course-card-placeholder" />
+        )}
+        <div className="course-name-badge">{course.title || "Course"}</div>
+        <div className="course-symbol-badge" aria-hidden="true">
+          <Icon size={16} />
+        </div>
       </div>
       <div className="course-body">
         <div className="course-meta">

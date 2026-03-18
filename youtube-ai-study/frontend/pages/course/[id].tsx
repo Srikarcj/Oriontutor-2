@@ -122,6 +122,13 @@ export default function CoursePage() {
       {!loading && !course ? <p>Course not found.</p> : null}
       {!loading && course ? (
         <div className="course-detail">
+          <div className="course-title-card">
+            <div className="course-title-label">Course</div>
+            <h1 className="course-title">{course.title || "Course"}</h1>
+            <p className="course-title-sub">
+              {course.category || "AI"} · {course.difficulty || "Intermediate"}
+            </p>
+          </div>
           <div className="course-info">
             <p>{course.description}</p>
             <div className="course-meta-row">

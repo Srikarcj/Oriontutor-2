@@ -366,6 +366,15 @@ create table if not exists public.pdf_embeddings (
   embedding jsonb,
   created_at timestamptz not null default now()
 );
+alter table public.pdf_embeddings add column if not exists chunk_text text;
+alter table public.pdf_embeddings add column if not exists chunk_index int;
+alter table public.pdf_embeddings add column if not exists source_type text;
+alter table public.pdf_embeddings add column if not exists file_name text;
+alter table public.pdf_embeddings add column if not exists course_slug text;
+alter table public.pdf_embeddings add column if not exists page_number int;
+alter table public.pdf_embeddings add column if not exists section_title text;
+alter table public.pdf_embeddings add column if not exists uploaded_at bigint;
+alter table public.pdf_embeddings add column if not exists user_id text;
 
 -- Enable RLS
 alter table public.users enable row level security;
@@ -545,6 +554,11 @@ create table if not exists public.pdf_documents (
   text text,
   created_at timestamptz not null default now()
 );
+alter table public.pdf_documents add column if not exists course_slug text;
+alter table public.pdf_documents add column if not exists file_hash text;
+alter table public.pdf_documents add column if not exists indexed_at timestamptz;
+create unique index if not exists pdf_documents_unique_hash
+on public.pdf_documents (user_id, course_slug, file_hash);
 
 create table if not exists public.pdf_chunks (
   id uuid primary key default gen_random_uuid(),
@@ -618,6 +632,9 @@ create table if not exists public.quizzes (
   explanation text,
   created_at timestamptz not null default now()
 );
+
+create unique index if not exists quizzes_unique_course_question
+on public.quizzes (course_id, question);
 
 create table if not exists public.enrollments (
   id uuid primary key default gen_random_uuid(),

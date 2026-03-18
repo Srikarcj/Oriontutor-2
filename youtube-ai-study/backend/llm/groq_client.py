@@ -289,6 +289,32 @@ class GroqClient:
         ]
         return self._chat(messages, temperature=0.1, max_tokens=350)
 
+    def answer_question_strict(self, question: str, context_chunks: List[Dict]) -> str:
+        """
+        Answer using ONLY the provided context. Do not use general knowledge.
+        """
+        joined_context = "\n\n".join(
+            f"[Segment {c.get('id', i)}] {c.get('text', '')}" for i, c in enumerate(context_chunks)
+        )
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a precise study assistant. Use ONLY the provided context to answer. "
+                    "Do not use outside knowledge or assumptions. "
+                    "If the answer is not explicitly in the context, say: "
+                    "\"I couldn't find that in the uploaded material. Please point me to the page or rephrase.\" "
+                    "If the question is about an acronym and the context does not define it, ask for clarification."
+                ),
+            },
+            {
+                "role": "system",
+                "content": f"Context:\n{joined_context}",
+            },
+            {"role": "user", "content": question},
+        ]
+        return self._chat(messages, temperature=0.1, max_tokens=350)
+
     def answer_general_question(self, question: str) -> str:
         messages = [
             {
@@ -302,6 +328,29 @@ class GroqClient:
             {"role": "user", "content": question},
         ]
         return self._chat(messages, temperature=0.1, max_tokens=350)
+
+    def rewrite_query(self, question: str, conversation: list[dict] | None = None) -> str:
+        history = ""
+        if conversation:
+            snippets = []
+            for item in conversation[-4:]:
+                role = item.get("role", "user")
+                content = item.get("content", "")
+                if content:
+                    snippets.append(f"{role}: {content}")
+            history = "\n".join(snippets)
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a search query rewriter for a knowledge base. "
+                    "Rewrite the user question to be specific and searchable. "
+                    "Return a single sentence only."
+                ),
+            },
+            {"role": "user", "content": f"Conversation context:\n{history}\n\nQuestion: {question}"},
+        ]
+        return self._chat(messages, temperature=0.1, max_tokens=80)
 
     def generate_lesson_package(self, title: str, summary: str, content: str, keywords: list[str] | None = None) -> dict:
         keywords_text = ", ".join(keywords or [])

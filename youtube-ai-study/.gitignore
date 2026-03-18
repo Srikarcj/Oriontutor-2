@@ -9,3 +9,7 @@ __pycache__/
 dist/
 build/
 .DS_Store
+backend/cache/
+backend/generated_pdfs/
+backend/vectorstore/*.json
+backend/vectorstore/*.npy

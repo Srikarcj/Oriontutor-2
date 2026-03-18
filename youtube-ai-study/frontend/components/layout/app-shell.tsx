@@ -6,7 +6,7 @@ import { SignedIn, SignedOut, SignInButton, SignUpButton, useClerk, useUser } fr
 import { ReactNode, useEffect, useMemo, useState } from "react";
 const navItems = [
   { href: "/learning-hub", label: "Learning Hub" },
-  { href: "/study-materials", label: "Study Materials" },
+  { href: "/study-materials", label: "AI Knowledge Lab" },
   { href: "/library", label: "Library" },
   { href: "/leaderboard", label: "Leaderboard" },
   { href: "/dashboard", label: "Dashboard" },

@@ -421,14 +421,19 @@ export default function HomePage() {
                 const Icon = getCourseIcon(course.symbol);
                 const slug = String(course?.slug || "").trim();
                 const href = slug ? `/course/${encodeURIComponent(slug)}` : "/learning-hub";
+                const themeClass = slug ? `course-theme-${slug}` : "";
                 return (
-                <div key={course.slug} className="course-card">
+                <div key={course.slug} className={`course-card ${themeClass}`}>
                   <div className="course-media">
                     {course.image_url || course.image ? (
                       <img src={course.image_url || course.image} alt={course.title || "Course"} loading="lazy" />
                     ) : (
                       <div className="course-card-placeholder" />
                     )}
+                    <div className="course-name-badge">{course.title || "Course"}</div>
+                    <div className="course-symbol-badge" aria-hidden="true">
+                      <Icon size={16} />
+                    </div>
                   </div>
                   <div className="course-body">
                     <div className="course-meta">
@@ -571,33 +576,6 @@ export default function HomePage() {
                   <span className="step-icon">{step.icon}</span>
                   <h4>{step.title}</h4>
                   <p>{step.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="screens-section">
-          <div className="landing-wrap">
-            <div className="section-head">
-              <p className="section-kicker">Product Screenshots</p>
-              <h2>Explore the OrionTutor workspace.</h2>
-              <p>Swap in real UI screenshots to show dashboards, mind maps, and flashcards.</p>
-            </div>
-            <div className="screens-grid">
-              {[
-                { label: "Dashboard Overview", src: "/landing/d-1.png" },
-                { label: "Mind Map Interface", src: "/landing/d-2.png" },
-                { label: "Flashcards Review", src: "/landing/d-3.png" },
-                { label: "AI Chat Assistant", src: "/landing/d-4.png" },
-                { label: "Notes Viewer", src: "/landing/d-5.png" },
-                { label: "Visual Insights", src: "/landing/d-6.png" },
-              ].map((item) => (
-                <div key={item.label} className="screen-card">
-                  <div className="screen-media">
-                    <img src={item.src} alt={item.label} loading="lazy" />
-                  </div>
-                  <div className="screen-label">{item.label}</div>
                 </div>
               ))}
             </div>

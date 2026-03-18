@@ -1,11 +1,128 @@
 ## YouTube AI Study - Full Stack App
 
-Turn long-form YouTube videos into structured learning material, deliver a learning hub experience, and power an AI assistant for concept explanations and file-based Q&A.
+Turn long-form YouTube videos and PDFs into structured learning material, deliver a learning hub experience, and power an AI assistant for document + video Q&A with citations.
+
+---
+
+## Architecture Overview
+
+**High-level components**
+- **Frontend (Next.js)**: AI Study Assistant UI, uploads, video analysis, Q&A, streaming answers.
+- **Backend (FastAPI)**: ingestion pipelines, RAG orchestration, PDF generation, streaming.
+- **Vector Store (FAISS)**: local embeddings + metadata index for PDFs and videos.
+- **Data Store (Supabase)**: persistent metadata for documents, embeddings, library items.
+- **LLM Provider (Groq)**: summaries, notes, Q&A, flashcards.
+
+**Logical layers**
+1. **Ingestion**: YouTube transcript + PDF text extraction.
+2. **Chunking**: semantic-ish chunking with overlap.
+3. **Embedding**: sentence-transformers vectors.
+4. **Indexing**: FAISS for fast similarity search.
+5. **RAG**: retrieval + LLM answer (strict for PDFs).
+6. **Presentation**: UI with streaming + citations.
+
+---
+
+## Architecture Diagram (Text)
+
+```
+Frontend (Next.js)
+  ├─ Upload PDF ────────┐
+  ├─ Analyze YouTube ───┼──> Backend (FastAPI)
+  └─ Ask Question ──────┘        ├─ Transcript/PDF Extract
+                                 ├─ Chunk + Embed
+                                 ├─ FAISS Index (local)
+                                 ├─ Supabase Metadata
+                                 └─ Groq LLM (summaries/Q&A)
+                                           ↓
+                                  Response + Citations + SSE
+```
+
+---
+
+## Core Data Flows
+
+### 1) YouTube → Learning Package
+1. User submits a YouTube link.
+2. Backend fetches transcript, cleans, and chunks.
+3. Embeddings are generated and stored in FAISS.
+4. Groq generates summary, notes, and flashcards.
+5. Response returns `video_id`, summary, notes, flashcards, and PDF URL.
+
+### 2) PDF Upload → Knowledge Base
+1. User uploads a PDF.
+2. Backend extracts text per page and chunks semantically.
+3. Embeddings saved to FAISS and Supabase.
+4. PDF becomes searchable for RAG Q&A.
+
+### 3) Ask AI (Unified RAG)
+1. Frontend sends question + optional `course_slug` + `video_id`.
+2. Backend retrieves top chunks from FAISS (PDF + video).
+3. Groq answers with citations.
+4. SSE endpoint streams partial answers for fast UX.
+
+---
+
+## API Surface (Key Endpoints)
+
+- `POST /api/video/process`
+- `POST /api/qa/ask`
+- `POST /api/pdf/upload`
+- `POST /api/pdf/ask`
+- `GET  /api/knowledge/documents`
+- `GET  /api/knowledge/videos`
+- `POST /api/knowledge/ask`
+- `GET  /api/knowledge/stream` (SSE)
+
+---
+
+## Data Model (Supabase)
+
+**Primary tables**
+- `pdf_documents` — document metadata
+- `pdf_embeddings` — chunk-level embeddings
+- `library_items` — saved items for the user
+
+---
+
+## Environment Variables
+
+Backend (`backend/.env`):
+```env
+GROQ_API_KEY=your_groq_api_key
+GROQ_MODEL=llama-3.1-8b-instant
+MAX_REQUEST_BYTES=26214400
+MAX_UPLOAD_BYTES=26214400
+SUPABASE_URL=...
+SUPABASE_SERVICE_ROLE_KEY=...
+```
+
+Frontend (`frontend/.env.local`):
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+BACKEND_URL=http://localhost:8000
+```
+
+---
+
+## Performance & Limits
+
+- PDF uploads default to **25 MB**.
+- FAISS index stored locally under `backend/vectorstore`.
+- PDF strict-answer mode prevents hallucinations when context is missing.
+
+---
+
+## Production Notes
+
+- Run FastAPI behind a reverse proxy (Nginx/Render) with matching request-size limits.
+- Persist `backend/vectorstore` and `backend/generated_pdfs` in production storage.
+- Supabase stores metadata; FAISS stores vectors for fast retrieval.
 
 ### Project layout
 
-- **frontend**: Next.js + TailwindCSS UI deployed to Vercel
-- **backend**: FastAPI service with Groq, FAISS, sentence-transformers, reportlab, and an AI assistant endpoint
+- **frontend**: Next.js UI (Vercel-ready) + Clerk auth + study assistant UX
+- **backend**: FastAPI service with Groq, FAISS, sentence-transformers, reportlab, PDF ingestion, and knowledge-base APIs
 
 Backend modules:
 - `config.py`: environment / path configuration
@@ -13,10 +130,13 @@ Backend modules:
 - `routes/video_routes.py`: video processing endpoint
 - `routes/qa_routes.py`: question-answering endpoint
 - `routes/assistant_routes.py`: AI assistant endpoint (concepts + file/image Q&A)
+- `routes/pdf_routes.py`: PDF upload + PDF Q&A endpoints
+- `routes/knowledge_routes.py`: knowledge-base APIs (documents + videos + streaming)
 - `services/transcript_service.py`: YouTube transcript fetch + cleaning
 - `services/chunk_service.py`: semantic-ish transcript chunking
 - `services/embedding_service.py`: local embeddings with `all-MiniLM-L6-v2`
 - `services/rag_service.py`: indexing + RAG orchestration
+- `services/knowledge_rag_service.py`: unified RAG over PDFs + videos
 - `services/pdf_service.py`: PDF generation via reportlab
 - `vectorstore/faiss_store.py`: FAISS index + metadata per video
 - `llm/groq_client.py`: Groq LLM wrapper for summarization, notes, QA
@@ -39,6 +159,8 @@ Set the Groq API key (in `backend/.env`):
 ```env
 GROQ_API_KEY=your_groq_api_key
 GROQ_MODEL=llama-3.1-8b-instant
+MAX_REQUEST_BYTES=26214400
+MAX_UPLOAD_BYTES=26214400
 ```
 
 Run the API (from repo root or backend folder):
@@ -59,6 +181,16 @@ Key endpoints:
   - fields: `prompt`
   - files: `uploads` (optional)
   - Uses Groq for clear explanations and file-based Q&A (PDF/text are parsed; images use OCR if available).
+- `POST /api/pdf/upload` - multipart form data:
+  - fields: `course_slug` (optional)
+  - files: `file` (PDF only)
+  - Uploads + indexes a PDF for RAG, returns `{ id, name, cached }`.
+- `POST /api/pdf/ask` - body: `{ "document_id": "...", "question": "..." }`
+  - Context-only answers from that PDF.
+- `GET /api/knowledge/documents` - list PDFs (filter by `course_slug` query param).
+- `GET /api/knowledge/videos` - list saved videos (filter by `course_slug` query param).
+- `POST /api/knowledge/ask` - unified Q&A across PDFs + videos with citations.
+- `GET /api/knowledge/stream` - SSE streaming answers for the UI.
 
 Generated PDFs are served from `/static/...` and saved under `backend/generated_pdfs`.
 
@@ -108,10 +240,10 @@ NEXT_PUBLIC_API_BASE_URL=https://your-backend.onrender.com
 ```
 
 Main UX:
-- Browse and open courses in the Learning Hub
-- Click any concept chip to get a clear explanation from the AI assistant
-- Upload a PDF/text/image and ask questions based on that content
-- Use the original YouTube-to-notes flow for structured study materials
+- AI Study Assistant (documents + videos)
+- Upload PDFs, build a personal knowledge base, ask questions with citations
+- Analyze YouTube lectures (summary, notes, flashcards) and ask video-specific questions
+- Course-aware filtering across documents and videos
 
 ---
 
@@ -136,4 +268,5 @@ After deployment, the Vercel app will call the FastAPI backend for processing an
 - **Local embeddings**: sentence-transformers model is loaded once and cached for performance.
 - **Vector store**: FAISS index and metadata are persisted per video under `backend/vectorstore`.
 - **PDFs**: reportlab-based generator produces compact, readable study notes PDFs.
-- **RAG pipeline**: question -> local embedding -> FAISS search -> Groq answer constrained to retrieved context.
+- **PDF RAG**: context-only answers (no external hallucinations) for uploaded documents.
+- **Unified RAG**: PDFs + videos with citations, plus streaming answers for a fast UI.

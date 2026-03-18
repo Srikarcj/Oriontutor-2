@@ -129,7 +129,7 @@ async def process_video(request: VideoProcessRequest) -> Dict[str, Any]:
         chunks = build_chunks(video_id=video_id, raw_entries=raw_entries)
         if not chunks:
             raise HTTPException(status_code=400, detail="Transcript was fetched but produced no usable text chunks.")
-        index_video_transcript(video_id=video_id, chunks=chunks)
+        index_video_transcript(video_id=video_id, chunks=chunks, title=f"Lecture {video_id}")
     except VectorStoreError as exc:
         # Do not block note generation if vector indexing fails.
         print(f"WARNING: Vector index operation failed for {video_id}: {exc}")

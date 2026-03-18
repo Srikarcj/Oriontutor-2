@@ -1,0 +1,28 @@
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getAuth } from "@clerk/nextjs/server";
+import { readRequired, serverEnv } from "../../../../lib/server/env";
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { userId } = getAuth(req);
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  if (req.method !== "POST") {
+    res.setHeader("Allow", "POST");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const backendUrl = readRequired("BACKEND_URL");
+  const upstream = await fetch(`${backendUrl}/api/knowledge/videos/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-User-Id": userId,
+      ...(serverEnv.backendApiKey ? { "X-Internal-API-Key": serverEnv.backendApiKey } : {}),
+    },
+    body: JSON.stringify(req.body || {}),
+  });
+
+  const text = await upstream.text();
+  if (!upstream.ok) return res.status(upstream.status).json({ error: text || "Video registration failed" });
+  return res.status(200).json(JSON.parse(text));
+}

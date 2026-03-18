@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 
 import httpx
-from fastapi import APIRouter, HTTPException, Header, UploadFile, File
+from fastapi import APIRouter, HTTPException, Header, UploadFile, File, Form
 from pydantic import BaseModel, constr
 
 from backend.app.modules.learning.services.pdf_learning_service import create_pdf_document, answer_pdf_question
@@ -14,7 +14,7 @@ class PdfQuestionRequest(BaseModel):
     question: constr(min_length=3, max_length=2000)
 
 
-MAX_PDF_BYTES = 8 * 1024 * 1024
+MAX_PDF_BYTES = 25 * 1024 * 1024
 
 
 def _assert_document_owner(document_id: str, user_id: str) -> None:
@@ -63,6 +63,7 @@ async def ask_pdf(
 @router.post("/upload")
 async def upload_pdf(
     file: UploadFile = File(...),
+    course_slug: str = Form(default=""),
     x_user_id: str = Header(default="", alias="X-User-Id"),
 ) -> Dict[str, Any]:
     if not x_user_id or len(x_user_id) > 128:
@@ -76,7 +77,7 @@ async def upload_pdf(
         raise HTTPException(status_code=413, detail="File too large.")
 
     try:
-        result = await create_pdf_document(x_user_id, file.filename or "document.pdf", data)
+        result = await create_pdf_document(x_user_id, file.filename or "document.pdf", data, course_slug=course_slug)
         return result
     except Exception:
         raise HTTPException(status_code=500, detail="Failed to process PDF.")

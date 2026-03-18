@@ -67,3 +67,14 @@ class SupabaseClient:
             raise SupabaseError(resp.text)
         return resp.json() or []
 
+    async def delete(self, table: str, match: Dict[str, Any]) -> List[Dict[str, Any]]:
+        url = f"{self.base_url}/rest/v1/{table}"
+        params = {key: f"eq.{value}" for key, value in match.items()}
+        headers = dict(self.headers)
+        headers["Prefer"] = "return=representation"
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.delete(url, params=params, headers=headers)
+        if resp.status_code >= 400:
+            raise SupabaseError(resp.text)
+        return resp.json() or []
+

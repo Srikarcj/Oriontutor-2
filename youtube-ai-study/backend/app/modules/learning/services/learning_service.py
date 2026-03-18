@@ -106,7 +106,7 @@ async def list_quiz_questions(course_id: str) -> List[Dict[str, Any]]:
         },
     )
     random.shuffle(rows)
-    return rows
+    return rows[:5]
 
 
 async def evaluate_quiz(
@@ -124,10 +124,13 @@ async def evaluate_quiz(
     )
     if not rows:
         return 0.0, 0, 0
-    total = len(rows)
+    answer_ids = {str(key) for key in answers.keys()}
+    total = len(answer_ids)
     correct = 0
     for row in rows:
         qid = str(row.get("id"))
+        if qid not in answer_ids:
+            continue
         expected = str(row.get("correct_answer", "")).strip().lower()
         provided = str(answers.get(qid, "")).strip().lower()
         if expected and provided and expected == provided:

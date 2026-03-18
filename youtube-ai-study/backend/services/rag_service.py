@@ -59,7 +59,7 @@ def _search_pdf_chunks(document_ids: List[str], question_embedding: np.ndarray, 
     return chunks
 
 
-def index_video_transcript(video_id: str, chunks: List[TranscriptChunk]) -> None:
+def index_video_transcript(video_id: str, chunks: List[TranscriptChunk], title: str | None = None) -> None:
     """
     Given cleaned transcript chunks, generate embeddings and persist to FAISS for this video.
     """
@@ -75,6 +75,8 @@ def index_video_transcript(video_id: str, chunks: List[TranscriptChunk]) -> None
                 "text": c.text,
                 "start": c.start,
                 "end": c.end,
+                "title": title,
+                "source_type": "video",
             }
         )
 
@@ -245,7 +247,10 @@ def _ensure_index_for_video(video_id: str) -> bool:
         chunks = build_chunks(video_id=video_id, raw_entries=raw_entries)
         if not chunks:
             return False
-        index_video_transcript(video_id=video_id, chunks=chunks)
+        title = None
+        if isinstance(cached.get("notes"), dict):
+            title = cached.get("notes", {}).get("title")
+        index_video_transcript(video_id=video_id, chunks=chunks, title=title)
         return True
     except Exception:
         return False

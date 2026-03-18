@@ -271,6 +271,18 @@ select id, 5, 'Project Capstone', 'Prompt system build',
   'Advanced: build and evaluate a prompt system.', 'advanced'
 from public.courses where slug = 'prompt-adv';
 
+-- Deep, easy-to-follow core explanations for every module
+update public.modules
+set explanation =
+  'Overview: ' || coalesce(concept, 'this concept') || ' is introduced with a clear definition and the intuition behind it.' || E'\n' ||
+  'Core mechanics: break the idea into parts and show how those parts interact in a real system.' || E'\n' ||
+  'Why teams use it: the specific pain points it solves and the measurable benefits it delivers.' || E'\n' ||
+  'In practice: where it appears in a production pipeline and how it is applied step by step.' || E'\n' ||
+  'Real-world example: a product team applies ' || coalesce(concept, 'this concept') || ' to improve reliability while keeping latency and cost within targets.' || E'\n' ||
+  'Common pitfalls: mistakes professionals avoid and the checks they add to prevent regressions.' || E'\n' ||
+  'Try it now: a short checklist you can follow to implement a minimal version.' || E'\n' ||
+  'Next level: trade-offs, scaling considerations, and when a simpler approach is enough.';
+
 -- Structured module content (introduction, examples, practice, summary, objectives, timing)
 update public.modules
 set
@@ -452,4 +464,5 @@ from public.courses where slug = 'prompt-adv'
 union all
 select id, 'Safety prompts are used to?', '["Remove UI","Prevent unsafe outputs","Add latency","Disable logging"]'::jsonb, 'Prevent unsafe outputs',
   'Safety prompts reduce unsafe outputs.'
-from public.courses where slug = 'prompt-adv';
+from public.courses where slug = 'prompt-adv'
+on conflict (course_id, question) do nothing;

@@ -36,8 +36,8 @@ class Settings:
         self.cors_allow_origins = [o.strip() for o in origins.split(",") if o.strip()]
         self.internal_api_key = os.getenv("BACKEND_API_KEY", "").strip()
         self.rate_limit_per_minute = int(os.getenv("RATE_LIMIT_PER_MINUTE", "60"))
-        self.max_request_bytes = int(os.getenv("MAX_REQUEST_BYTES", str(10 * 1024 * 1024)))
-        self.max_upload_bytes = int(os.getenv("MAX_UPLOAD_BYTES", str(8 * 1024 * 1024)))
+        self.max_request_bytes = int(os.getenv("MAX_REQUEST_BYTES", str(25 * 1024 * 1024)))
+        self.max_upload_bytes = int(os.getenv("MAX_UPLOAD_BYTES", str(25 * 1024 * 1024)))
 
 
 @lru_cache()

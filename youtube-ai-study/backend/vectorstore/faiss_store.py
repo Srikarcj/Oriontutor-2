@@ -111,3 +111,10 @@ def search_video_chunks(video_id: str, query_embedding: np.ndarray, top_k: int =
 
     return results
 
+
+def delete_video_index(video_id: str) -> None:
+    index_path, meta_path = _paths_for_video(video_id)
+    for path in (index_path, meta_path):
+        if os.path.exists(path):
+            os.remove(path)
+
